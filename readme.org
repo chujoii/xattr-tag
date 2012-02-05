@@ -1,0 +1,52 @@
+*    enable xattr (USE flag in make.conf)
+ sudo mount -oremount,user_xattr
+    or permanently enable by editing:
+ /etc/fstab/dev/sdb1 /export ext3 defaults,user_xattr 1 2
+    Testing if extended attribute works:
+
+*    set
+ setfattr -n user.foo -v bar hello.txt
+
+*    list of tag
+ getfattr hello.txt
+
+*    get
+ getfattr -n user.foo hello.txt
+    file: hello.txtuser.foo="bar"
+    or:
+ getfattr -d hello.txt
+
+*    remove
+ setfattr -x user.foo hello.txt
+
+
+*    Backup all extended attributes:
+ getfattr --dump * > data_file
+
+*    Restore all extended attributes
+ setfattr --restore=data_file
+
+* use cli
+ cp --preserve=xattr
+     or
+ cp --preserve=all
+     or
+ rsync ?????????????????
+
+
+* examples:
+
+
+user.checksum.md5
+user.checksum.sha1
+user.checksum.sha256
+user.original_author
+user.application
+user.project
+user.comment
+user.icon.svg
+user.icon.png.32
+user.tag     :( already used:
+user.tag.artist
+user.tag.title
+user.metatag
