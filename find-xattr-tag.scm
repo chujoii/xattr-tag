@@ -1,9 +1,52 @@
 #!/usr/bin/guile -s
 !#
 
-;;; use:
-;;; ./find-xattr-tag.scm store/doc/ tag1 tag2 tag3
-;;; search in path "store/doc/" files with  "tag1 AND tag2 AND tag3"
+;;;; find-xattr-tag.scm ---  find file by xattr, and other attributes
+
+
+
+;;; Copyright (C) 2012 Roman V. Prikhodchenko
+
+
+
+;;; Author: Roman V. Prikhodchenko <chujoii@gmail.com>
+;;; Keywords: find xattr tag search
+
+
+
+;;;    This file is part of xattr-tag.
+;;;
+;;;    xattr-tag is free software: you can redistribute it and/or modify
+;;;    it under the terms of the GNU General Public License as published by
+;;;    the Free Software Foundation, either version 3 of the License, or
+;;;    (at your option) any later version.
+;;;
+;;;    xattr-tag is distributed in the hope that it will be useful,
+;;;    but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;;    GNU General Public License for more details.
+;;;
+;;;    You should have received a copy of the GNU General Public License
+;;;    along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+;;; Usage:
+
+;; ./find-xattr-tag.scm store/doc/ tag1 tag2 tag3
+;; search in path "store/doc/" files with  "tag1 AND tag2 AND tag3"
+
+
+
+;;; History:
+
+;; Version 0.1 was created at 2012.february.03
+
+
+
+;;; Code:
+
+
 
 (display "file: ")(display (cadr (command-line)))(newline)
 (display "tag: ")(display (cddr (command-line)))(newline)
@@ -26,14 +69,11 @@
       (and (member-tf (car list-1) list-2) (include-list (cdr list-1) list-2))))
 
 
-(define (procf filename statinfo flag)
-  (if (and (equal? 'regular flag)
-	   (include-list  list-2) )
-	 (display filename)))
-  #t)
-
-
-
+;(define (procf filename statinfo flag)
+;  (if (and (equal? 'regular flag)
+;	   (include-list  list-2) )
+;	 (display filename)))
+;  #t) ;; fixme
 
 
 (use-modules (ice-9 ftw))
