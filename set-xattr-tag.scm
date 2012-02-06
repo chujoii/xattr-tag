@@ -2,7 +2,7 @@
 !#
 
 ;;;; set-xattr-tag.scm ---  write (delete old xattr) to file
-;;;; (and add for file.ext file.etx.txt with copy of xattr)
+;;;; (and duplicate xattr in file file.ext.txt (for file.ext))
 
 
 
@@ -11,7 +11,6 @@
 
 
 ;;; Author: Roman V. Prikhodchenko <chujoii@gmail.com>
-;;; Keywords: set xattr tag search
 
 
 
@@ -29,6 +28,10 @@
 ;;;
 ;;;    You should have received a copy of the GNU General Public License
 ;;;    along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+;;; Keywords: set xattr tag search
 
 
 
@@ -52,20 +55,6 @@
 
 
 
-(display "file: ")(display (cadr (command-line)))(newline)
-(display "tag: ")(display (cddr (command-line)))(newline)
-
-(define (set-user.metatag file tag-list)
-  (string-join (list "setfattr -n user.metatag -v"
-		     " \""
-		     (string-join tag-list " ")
-		     "\" "
-		     file)
-	       ""))
-
-
-
-
 (define (set-xattr-tag file-name tag-name tags-list)
   (system (string-join (list "setfattr"
 			     " -n " tag-name
@@ -75,22 +64,17 @@
 
 
 
-(define (set-checksum file tag-list)
-  (string-join (list "setfattr -n user.checksum.md5 -v"
-		     " \""
-		     (string-join tag-list " ")
-		     "\" "
-		     file)
-	       ""))
-
-
-
-
 ;;(define (set-info-file file tag-list)
 ;;  (define info-file (open-output-file file))
 ;;  (write tag-list info-file)
 ;;  (write (newline) info-file)
 ;;  (close info-file))
+
+(define (set-info-file file)
+  (system (string-join (list "getfattr --dump " filename " > " filename ".txt") "")))
+
+
+
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
@@ -105,8 +89,7 @@
 
   (set-xattr-tag filename "user.checksum.sha256"
 		 (list (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b " filename))) #\ )))))
-
   
-;  (system (string-join (list "getfattr --dump " filename " >") "")))
+;;  (set-info-file filename))
 
 
