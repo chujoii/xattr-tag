@@ -51,27 +51,9 @@
 
 
 
-(load "system-cmd.scm")
+(load "../battery-scheme/system-cmd.scm")
+(load "lib-xattr-tag.scm")
 
-
-
-(define (set-xattr-tag file-name tag-name tags-list)
-  (system (string-join (list "setfattr"
-			     " -n " tag-name
-			     " -v \"" (string-join tags-list " ") "\""
-			     "    " file-name)
-		       "")))
-
-
-
-;;(define (set-info-file file tag-list)
-;;  (define info-file (open-output-file file))
-;;  (write tag-list info-file)
-;;  (write (newline) info-file)
-;;  (close info-file))
-
-(define (set-info-file file)
-  (system (string-join (list "getfattr --dump " filename " > " filename ".txt") "")))
 
 
 

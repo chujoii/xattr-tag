@@ -38,7 +38,10 @@
 
 ;; ./find-xattr-tag.scm store/doc/ tag1 tag2 tag3
 ;; search in path "store/doc/" files with  "tag1 AND tag2 AND tag3"
-
+;;
+;; or you can use this command:
+;;
+;; find . -type f -exec getfattr -d {} \;
 
 
 ;;; History:
@@ -50,6 +53,11 @@
 ;;; Code:
 
 
+
+(load "../battery-scheme/system-cmd.scm")
+(load "../battery-scheme/string.scm")
+(load "../battery-scheme/print-list.scm")
+(load "lib-xattr-tag.scm")
 
 (define nil '())
 
@@ -84,29 +92,13 @@
   (map match:substring (list-matches "[^- _/.]+" filename)))
 
 
-(define (string-cut s start end)
-  (let ((strlen (string-length s)))
-    (string-take (string-drop s start) (if (< end 0) 
-					   (+ strlen end -1)
-					   end))))
   
-(load "system-cmd.scm")
-(define (get-file-name-xattr-tag filename tag-name)
-  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " " filename)))))))
-    (if (eq? nil getfattr-result)
-	nil
-	(string-split
-	 (string-cut
-	  (car getfattr-result) 1 -1)
-	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
-	 ;; fixme (?<=").*(?=")
-	 #\ ))))
 
-;string-length
+
 
 
 (define (calc-rating filename tags)
-  (include-list (append (get-path-file-name-tag filename) (get-file-name-xattr-tag filename "user.metatag"))
+  (include-list (append (get-path-file-name-tag filename) (get-xattr-tag filename "user.metatag"))
 		tags))
 
 
@@ -171,20 +163,6 @@
 
 (define (find-tag startpath tag-list)
   (map (lambda (filepath) (list filepath (calc-rating filepath tag-list))) (list-all-files startpath)))
-
-
-
-
-(define (print-list-without-bracket list)
-  ;; print single or two dimension list
-  (cond ((null? list)
-         (newline))
-        ((pair? list)
-         (print-list-without-bracket (car list))
-         (print-list-without-bracket (cdr list)))
-        (else
-         (display list)
-         (display "\t"))))
 
 
 

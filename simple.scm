@@ -10,7 +10,6 @@
 
 
 ;;; Author: Roman V. Prikhodchenko <chujoii@gmail.com>
-;;; Keywords: set xattr tag search
 
 
 
@@ -28,6 +27,10 @@
 ;;;
 ;;;    You should have received a copy of the GNU General Public License
 ;;;    along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+;;; Keywords: set xattr tag search
 
 
 

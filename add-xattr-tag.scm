@@ -11,7 +11,6 @@
 
 
 ;;; Author: Roman V. Prikhodchenko <chujoii@gmail.com>
-;;; Keywords: set xattr tag search
 
 
 
@@ -32,6 +31,10 @@
 
 
 
+;;; Keywords: set xattr tag search
+
+
+
 ;;; Usage:
 
 ;; ./add-xattr-tag.scm test.txt tag1 tag2 tag3
@@ -48,7 +51,18 @@
 
 
 
-(system "")
+(load "../battery-scheme/system-cmd.scm")
+(load "../battery-scheme/string.scm")
+(load "../battery-scheme/unique-list.scm")
+(load "lib-xattr-tag.scm")
 
-(display (cdr (command-line)))
-(newline)
+(define nil '())
+
+
+
+
+(let ((filename (cadr (command-line)))
+      (filetags (cddr (command-line))))
+  (if (not (check-xattr-tag filename))
+      (display "error in checksum\n")
+      (set-xattr-tag filename "user.metatag" (unique-list (append filetags (get-xattr-tag filename "user.metatag"))))))
