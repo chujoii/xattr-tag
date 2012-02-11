@@ -170,15 +170,29 @@
 
 
 (define (find-tag startpath tag-list)
-  (display "================ ")(display startpath)(newline)
-  (display "================ ")(display tag-list)(newline)
   (map (lambda (filepath) (list filepath (calc-rating filepath tag-list))) (list-all-files startpath)))
 
 
 
 
-(display (find-tag (cadr (command-line)) (cddr (command-line))))
-(newline)
+(define (print-list-without-bracket list)
+  ;; print single or two dimension list
+  (cond ((null? list)
+         (newline))
+        ((pair? list)
+         (print-list-without-bracket (car list))
+         (print-list-without-bracket (cdr list)))
+        (else
+         (display list)
+         (display "\t"))))
+
+
+
+
+(print-list-without-bracket (sort
+			     (find-tag (cadr (command-line)) (cddr (command-line)))
+			     (lambda (x y) (< (cadr x) (cadr y)))))
+
 
 
 
