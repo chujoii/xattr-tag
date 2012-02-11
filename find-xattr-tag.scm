@@ -10,7 +10,6 @@
 
 
 ;;; Author: Roman V. Prikhodchenko <chujoii@gmail.com>
-;;; Keywords: find xattr tag search
 
 
 
@@ -31,6 +30,10 @@
 
 
 
+;;; Keywords: find xattr tag search
+
+
+
 ;;; Usage:
 
 ;; ./find-xattr-tag.scm store/doc/ tag1 tag2 tag3
@@ -48,25 +51,65 @@
 
 
 
-(display "file: ")(display (cadr (command-line)))(newline)
-(display "tag: ")(display (cddr (command-line)))(newline)
+(define nil '())
 
 
 
+;(define (member-tf x lst)
+;  (if (member x lst) #t #f))
 
+(define (count-include x lst)
+  (define (counter-true list-tf)
+    (if (eq? nil list-tf)
+	0
+	(+ (if (car list-tf) 1 0) (counter-true (cdr list-tf)))))
+  (counter-true (map (lambda (i) (equal? i x)) lst)))
 
-
-
-(define (member-tf x lst)
-  (if (member x lst) #t #f))
 
 (define (include-list list-1 list-2)
   ;; list-1 included in list-2
   ;; fixme name "include-list"
   ;; fixme if initial list-1 === nil   => #t
     (if (equal? list-1 nil)
-      #t
-      (and (member-tf (car list-1) list-2) (include-list (cdr list-1) list-2))))
+      0
+      (+ (count-include (car list-1) list-2) (include-list (cdr list-1) list-2))))
+;;    (and (member-tf (car list-1) list-2) (include-list (cdr list-1) list-2))))
+
+
+
+(use-modules (ice-9 regex))
+(define (get-path-file-name-tag filename)
+  ;; strange but this construction not work? fixme
+  ;;(map match:substring (list-matches (string-join (list "[^" (char-set->string (char-set-union char-set:punctuation char-set:whitespace)) "]")) "abc 42 def --_- -78"))
+  (map match:substring (list-matches "[^- _/.]+" filename)))
+
+
+(define (string-cut s start end)
+  (let ((strlen (string-length s)))
+    (string-take (string-drop s start) (if (< end 0) 
+					   (+ strlen end -1)
+					   end))))
+  
+(load "system-cmd.scm")
+(define (get-file-name-xattr-tag filename tag-name)
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " " filename)))))))
+    (if (eq? nil getfattr-result)
+	nil
+	(string-split
+	 (string-cut
+	  (car getfattr-result) 1 -1)
+	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
+	 ;; fixme (?<=").*(?=")
+	 #\ ))))
+
+;string-length
+
+
+(define (calc-rating filename tags)
+  (include-list (append (get-path-file-name-tag filename) (get-file-name-xattr-tag filename "user.metatag"))
+		tags))
+
+
 
 
 ;(define (procf filename statinfo flag)
@@ -76,20 +119,10 @@
 ;  #t) ;; fixme
 
 
-(use-modules (ice-9 ftw))
-;;(ftw (cadr (command-line)) procf)
-;(ftw "/home/toor/bin/xattr-tag/" procf)
-
-
-
-
-
-
-
-
 ;;; help:  see doc    "guile File Tree Walk" : best= file-system-tree
 ;;; guile-old: ftw, nftw
 ;;; guile-2.0.5: file-system-tree, ftw, nftw
+(use-modules (ice-9 ftw))
 
 
 ;;;### http://sites.google.com/site/robertharamoto/Home/programming/moving-to-guile-2
@@ -123,13 +156,12 @@
   (let ((counter 0)
 	(file-list (list)))
     (begin
-      (nftw
-       init-path
-       (lambda (filename statinfo flag base level)
-	 (begin
-	   (if (equal? flag 'regular)
-	       (set! file-list (append file-list (list filename))))
-	   #t)))
+      (nftw init-path
+	    (lambda (filename statinfo flag base level)
+	      (begin
+		(if (equal? flag 'regular)
+		    (set! file-list (append file-list (list filename))))
+		#t)))
       
       file-list)))
 
@@ -137,13 +169,17 @@
 
 
 
-
-(define (find-tag path tag-list)
-  (define (check-tag tag-list)
-    ???)
-  (map check-tag (list-all-files path)))
-
+(define (find-tag startpath tag-list)
+  (display "================ ")(display startpath)(newline)
+  (display "================ ")(display tag-list)(newline)
+  (map (lambda (filepath) (list filepath (calc-rating filepath tag-list))) (list-all-files startpath)))
 
 
 
-(find-tag (cadr (command-line)) (cddr (command-line)))
+
+(display (find-tag (cadr (command-line)) (cddr (command-line))))
+(newline)
+
+
+
+
