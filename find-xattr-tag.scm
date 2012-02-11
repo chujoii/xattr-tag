@@ -71,7 +71,7 @@
     (if (eq? nil list-tf)
 	0
 	(+ (if (car list-tf) 1 0) (counter-true (cdr list-tf)))))
-  (counter-true (map (lambda (i) (equal? i x)) lst)))
+  (counter-true (map (lambda (i) (string-ci=? i x)) lst)))
 
 
 (define (include-list list-1 list-2)
