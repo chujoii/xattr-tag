@@ -71,7 +71,6 @@
     (if (eq? nil list-tf)
 	0
 	(+ (if (car list-tf) 1 0) (counter-true (cdr list-tf)))))
-  (display x)(display " === ")(display lst)(newline)
   (counter-true (map (lambda (i) (string-contains-ci i x)) lst)))
 
 

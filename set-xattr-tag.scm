@@ -70,8 +70,8 @@
 		 (list (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b " filename))) #\ ))))
 
   (set-xattr-tag filename "user.checksum.sha256"
-		 (list (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b " filename))) #\ )))))
+		 (list (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b " filename))) #\ ))))
   
-;;  (set-info-file filename))
+  (set-info-tag filename (string-join (list filename ".txt") "")))
 
 
