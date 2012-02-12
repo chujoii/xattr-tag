@@ -71,7 +71,8 @@
     (if (eq? nil list-tf)
 	0
 	(+ (if (car list-tf) 1 0) (counter-true (cdr list-tf)))))
-  (counter-true (map (lambda (i) (string-ci=? i x)) lst)))
+  (display x)(display " === ")(display lst)(newline)
+  (counter-true (map (lambda (i) (string-contains-ci i x)) lst)))
 
 
 (define (include-list list-1 list-2)
@@ -98,8 +99,8 @@
 
 
 (define (calc-rating filename tags)
-  (include-list (append (get-path-file-name-tag filename) (get-xattr-tag filename "user.metatag"))
-		tags))
+  (include-list tags 
+		(append (get-path-file-name-tag filename) (get-xattr-tag filename "user.metatag"))))
 
 
 
