@@ -1,50 +1,50 @@
-
-;;;; readme.org ---  description
-
-
-
-;;; Copyright (C) 2012 Roman V. Prikhodchenko
+* license
+ readme.org ---  description
 
 
 
-;;; Author: Roman V. Prikhodchenko <chujoii@gmail.com>
+ Copyright (C) 2012 Roman V. Prikhodchenko
 
 
 
-;;;    This file is part of xattr-tag.
-;;;
-;;;    xattr-tag is free software: you can redistribute it and/or modify
-;;;    it under the terms of the GNU General Public License as published by
-;;;    the Free Software Foundation, either version 3 of the License, or
-;;;    (at your option) any later version.
-;;;
-;;;    xattr-tag is distributed in the hope that it will be useful,
-;;;    but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;;    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;;    GNU General Public License for more details.
-;;;
-;;;    You should have received a copy of the GNU General Public License
-;;;    along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
+ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
 
 
 
-;;; Keywords: xattr tag search
+    This file is part of xattr-tag.
+
+    xattr-tag is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    xattr-tag is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-;;; Usage:
-
-;; read with emacs
+ Keywords: xattr tag search
 
 
 
-;;; History:
+ Usage:
 
-;; Version 0.1 was created at 2012.february.03
+ read with emacs
 
 
 
-;;; Code:
+ History:
+
+ Version 0.1 was created at 2012.february.03
+
+
+
+ Code:
 
 
 
@@ -77,14 +77,6 @@
 *    Restore all extended attributes
  setfattr --restore=data_file
 
-* use cli
- cp --preserve=xattr
-     or
- cp --preserve=all
-     or
- rsync ?????????????????
-
-
 * examples:
 
 
@@ -101,3 +93,14 @@ user.tag     :( already used:
 user.tag.artist
 user.tag.title
 user.metatag
+
+
+* particulars
+| program  | possibility | commentary                                                                                               |
+|----------+-------------+----------------------------------------------------------------------------------------------------------|
+| cp       | +           | (cp --preserve=xattr)  or  (cp --preserve=all) or set alias (alias cp='nocorrect cp -iR --preserve=all') |
+| mv       | +           |                                                                                                          |
+| rsync    | +           | rsync --xattrs                                                                                                   |
+| mc       | not         | not work in version 4.8.1                                                                                |
+| nautilus | +           |                                                                                                          |
+

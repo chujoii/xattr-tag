@@ -52,11 +52,11 @@
 
 ;;; ------------------------------------ set
 
-(define (set-xattr-tag file-name tag-name tags-list)
+(define (set-xattr-tag filename tag-name tags-list)
   (system (string-join (list "setfattr"
 			     " -n " tag-name
 			     " -v \"" (string-join tags-list " ") "\""
-			     "    " file-name)
+			     "    \"" filename "\"")
 		       "")))
 
 
@@ -67,14 +67,14 @@
 ;;  (close info-file))
 
 (define (set-info-tag filename result-file)
-  (system (string-join (list "getfattr --dump " filename " > " result-file) "")))
+  (system (string-join (list "getfattr --dump \"" filename "\" > \"" result-file "\"") "")))
 
 
 
 ;;; ------------------------------------ get
 (use-modules (ice-9 regex))
 (define (get-xattr-tag filename tag-name)
-  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " " filename)))))))
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\"") "")))))) ;; filename with quotes because it can contain space
     (if (eq? nil getfattr-result)
 	nil
 	(string-split
@@ -87,7 +87,7 @@
 
 
 (define (get-xattr-raw-tag filename)
-  (system-with-output-to-string (string-join (list "getfattr --dump " filename) "")))
+  (system-with-output-to-string (string-join (list "getfattr --dump \"" filename "\"") "")))
 
 
 
@@ -113,14 +113,23 @@
 
 ;;; ------------------------------------- check
 
+(define (get-md5 filename)
+  (car (string-split (system-with-output-to-string (string-join (list "md5sum -b \"" filename "\"") "")) #\ )))
+
+(define (get-sha1 filename)
+  (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b \"" filename "\"") "")) #\ )))
+
+(define (get-sha256 filename)
+(car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\ )))
+
 (define (check-xattr-tag filename)
   (let ((chk-md5    (equal? (get-xattr-tag filename "user.checksum.md5")
-			    (list (car (string-split (system-with-output-to-string (string-join (list "md5sum -b " filename))) #\ )))))
+			    (list (get-md5 filename))))
 	(chk-sha1   (equal? (get-xattr-tag filename "user.checksum.sha1")
-			    (list (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b " filename))) #\ )))))
+			    (list (get-sha1 filename))))
 	(chk-sha256 (equal? (get-xattr-tag filename "user.checksum.sha256")
-			    (list (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b " filename))) #\ )))))
-	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list filename ".txt") "")))
+			    (list (get-sha256 filename))))
+	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list "\"" filename ".txt\"") "")))
 			  (generated-xattr-tag (get-xattr-raw-tag filename)))
 		      ;; remove first line because it contains file name with absolute path OR file name with relative path
 		      (string= (string-take-right stored-xattr-tag (- (string-length stored-xattr-tag) (string-index stored-xattr-tag #\

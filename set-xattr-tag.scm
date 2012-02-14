@@ -60,17 +60,17 @@
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
-
+  
   (set-xattr-tag filename "user.metatag" filetags)
 
   (set-xattr-tag filename "user.checksum.md5"
-		 (list (car (string-split (system-with-output-to-string (string-join (list "md5sum -b " filename))) #\ ))))
+		 (list (get-md5 filename)))
 
   (set-xattr-tag filename "user.checksum.sha1"
-		 (list (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b " filename))) #\ ))))
+		 (list (get-sha1 filename)))
 
   (set-xattr-tag filename "user.checksum.sha256"
-		 (list (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b " filename))) #\ ))))
+		 (list (get-sha256 filename)))
   
   (set-info-tag filename (string-join (list filename ".txt") "")))
 

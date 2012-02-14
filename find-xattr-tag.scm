@@ -63,8 +63,8 @@
 
 
 
-;(define (member-tf x lst)
-;  (if (member x lst) #t #f))
+;;(define (member-tf x lst)
+;;  (if (member x lst) #t #f))
 
 (define (count-include x lst)
   (define (counter-true list-tf)
@@ -78,7 +78,7 @@
   ;; list-1 included in list-2
   ;; fixme name "include-list"
   ;; fixme if initial list-1 === nil   => #t
-    (if (equal? list-1 nil)
+  (if (equal? list-1 nil)
       0
       (+ (count-include (car list-1) list-2) (include-list (cdr list-1) list-2))))
 ;;    (and (member-tf (car list-1) list-2) (include-list (cdr list-1) list-2))))
@@ -92,7 +92,7 @@
   (map match:substring (list-matches "[^- _/.]+" filename)))
 
 
-  
+
 
 
 
@@ -104,11 +104,11 @@
 
 
 
-;(define (procf filename statinfo flag)
-;  (if (and (equal? 'regular flag)
-;	   (include-list  list-2) )
-;	 (display filename)))
-;  #t) ;; fixme
+;;(define (procf filename statinfo flag)
+;;  (if (and (equal? 'regular flag)
+;;	   (include-list  list-2) )
+;;	 (display filename)))
+;;  #t) ;; fixme
 
 
 ;;; help:  see doc    "guile File Tree Walk" : best= file-system-tree
@@ -123,26 +123,26 @@
 ;;;#############################################################
 ;;;###
 ;;;### load list of *.scm files
-;(define (list-all-scheme-files init-path file-string sub-string)
-;  (let ((counter 0)
-;	(file-list (list)))
-;    (begin
-;      (ice9-ftw:nftw
-;       init-path
-;       (lambda (filename statinfo flag base level)
-;	 (begin
-;	   (if (equal? flag 'regular)
-;	       (begin
-;		 (if (and
-;		      (not (equal? (string-match file-string filename) #f))
-;		      (not (equal? (string-match sub-string filename) #f)))
-;		     (begin
-;		       (set! file-list (append file-list (list (basename filename))))
-;		       ))))
-;	   #t)))
-;      
-;      file-list
-;      )))
+;;(define (list-all-scheme-files init-path file-string sub-string)
+;;  (let ((counter 0)
+;;	(file-list (list)))
+;;    (begin
+;;      (ice9-ftw:nftw
+;;       init-path
+;;       (lambda (filename statinfo flag base level)
+;;	 (begin
+;;	   (if (equal? flag 'regular)
+;;	       (begin
+;;		 (if (and
+;;		      (not (equal? (string-match file-string filename) #f))
+;;		      (not (equal? (string-match sub-string filename) #f)))
+;;		     (begin
+;;		       (set! file-list (append file-list (list (basename filename))))
+;;		       ))))
+;;	   #t)))
+;;      
+;;      file-list
+;;      )))
 
 (define (list-all-files init-path)
   (let ((counter 0)
@@ -160,16 +160,18 @@
 
 
 
-
 (define (find-tag startpath tag-list)
   (map (lambda (filepath) (list filepath (calc-rating filepath tag-list))) (list-all-files startpath)))
 
 
 
 
-(print-list-without-bracket (sort
-			     (find-tag (cadr (command-line)) (cddr (command-line)))
-			     (lambda (x y) (< (cadr x) (cadr y)))))
+(let ((filename (cadr (command-line)))
+      (filetags (cddr (command-line))))
+
+  (print-list-without-bracket (sort
+			       (find-tag filename filetags)
+			       (lambda (x y) (< (cadr x) (cadr y))))))
 
 
 
