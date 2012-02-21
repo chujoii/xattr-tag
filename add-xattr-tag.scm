@@ -51,6 +51,9 @@
 
 
 
+; coding: utf-8
+(setlocale LC_ALL "en_US.UTF-8")
+
 (load "../battery-scheme/system-cmd.scm")
 (load "../battery-scheme/string.scm")
 (load "../battery-scheme/unique-list.scm")

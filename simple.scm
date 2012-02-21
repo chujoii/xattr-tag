@@ -50,5 +50,7 @@
 
 
 
-(display (command-line))
-(newline)
+(load "../battery-scheme/system-cmd.scm")
+(load "lib-xattr-tag.scm")
+
+(system-with-output-to-string "getfattr -n user.metatag \"/home/chujoii/project/xattr-tag/q/Предложение_по_популяризация_xattr.maff\"")

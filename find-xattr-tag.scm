@@ -54,12 +54,17 @@
 
 
 
+; coding: utf-8
+(setlocale LC_ALL "en_US.UTF-8")
+
+(define nil '())
+
 (load "../battery-scheme/system-cmd.scm")
 (load "../battery-scheme/string.scm")
 (load "../battery-scheme/print-list.scm")
 (load "lib-xattr-tag.scm")
 
-(define nil '())
+
 
 
 
@@ -90,7 +95,6 @@
   ;; strange but this construction not work? fixme
   ;;(map match:substring (list-matches (string-join (list "[^" (char-set->string (char-set-union char-set:punctuation char-set:whitespace)) "]")) "abc 42 def --_- -78"))
   (map match:substring (list-matches "[^- _/.]+" filename)))
-
 
 
 
@@ -154,7 +158,7 @@
 		(if (equal? flag 'regular)
 		    (set! file-list (append file-list (list filename))))
 		#t)))
-      
+
       file-list)))
 
 
@@ -165,6 +169,7 @@
 
 
 
+;(display (list-all-files "/home/chujoii/project/xattr-tag/q"))
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
@@ -173,6 +178,13 @@
 			       (find-tag filename filetags)
 			       (lambda (x y) (< (cadr x) (cadr y))))))
 
+
+;(let ((filename "/home/chujoii/project/xattr-tag/q")
+;      (filetags (list "Предложение")))
+;
+;  (print-list-without-bracket (sort
+;			       (find-tag filename filetags)
+;			       (lambda (x y) (< (cadr x) (cadr y))))))
 
 
 

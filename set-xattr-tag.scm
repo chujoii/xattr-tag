@@ -51,6 +51,9 @@
 
 
 
+; coding: utf-8
+(setlocale LC_ALL "en_US.UTF-8")
+
 (load "../battery-scheme/system-cmd.scm")
 (load "lib-xattr-tag.scm")
 
@@ -60,7 +63,9 @@
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
-  
+
+  (display "start=")(display filename)(newline)
+
   (set-xattr-tag filename "user.metatag" filetags)
 
   (set-xattr-tag filename "user.checksum.md5"

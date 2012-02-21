@@ -50,6 +50,14 @@
 
 
 
+; coding: utf-8
+(setlocale LC_ALL "en_US.UTF-8")
+
+
+(load "../battery-scheme/file-contents.scm")
+
+
+
 ;;; ------------------------------------ set
 
 (define (set-xattr-tag filename tag-name tags-list)
@@ -73,6 +81,7 @@
 
 ;;; ------------------------------------ get
 (use-modules (ice-9 regex))
+
 (define (get-xattr-tag filename tag-name)
   (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\"") "")))))) ;; filename with quotes because it can contain space
     (if (eq? nil getfattr-result)
@@ -91,25 +100,6 @@
 
 
 
-;(define (get-info-raw-tag filename)
-;  (define info-file (open-input-file filename))
-;  (let ((data (read info-file)))
-;    (close info-file)
-;    data))
-;
-(use-modules (ice-9 rw))
-(define (file-contents file)
-  ;; from http://pleac.sourceforge.net/pleac_guile/filecontents.html
-  ;; fixme need check exist of file
-  (call-with-input-file file
-    (lambda (p)
-      (let* ((size (stat:size (stat p)))
-             (buf (make-string size)))
-        (read-string!/partial buf p)
-        buf))))
-
-
-
 
 ;;; ------------------------------------- check
 
@@ -120,7 +110,7 @@
   (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b \"" filename "\"") "")) #\ )))
 
 (define (get-sha256 filename)
-(car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\ )))
+  (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\ )))
 
 (define (check-xattr-tag filename)
   (let ((chk-md5    (equal? (get-xattr-tag filename "user.checksum.md5")
