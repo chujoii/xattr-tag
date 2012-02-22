@@ -62,6 +62,7 @@
 (load "../battery-scheme/system-cmd.scm")
 (load "../battery-scheme/string.scm")
 (load "../battery-scheme/print-list.scm")
+(load "../battery-scheme/recursive-file-list.scm")
 (load "lib-xattr-tag.scm")
 
 
@@ -115,51 +116,6 @@
 ;;  #t) ;; fixme
 
 
-;;; help:  see doc    "guile File Tree Walk" : best= file-system-tree
-;;; guile-old: ftw, nftw
-;;; guile-2.0.5: file-system-tree, ftw, nftw
-(use-modules (ice-9 ftw))
-
-
-;;;### http://sites.google.com/site/robertharamoto/Home/programming/moving-to-guile-2
-;;;### this code is free and dedicated to the public domain
-;;;#############################################################
-;;;#############################################################
-;;;###
-;;;### load list of *.scm files
-;;(define (list-all-scheme-files init-path file-string sub-string)
-;;  (let ((counter 0)
-;;	(file-list (list)))
-;;    (begin
-;;      (ice9-ftw:nftw
-;;       init-path
-;;       (lambda (filename statinfo flag base level)
-;;	 (begin
-;;	   (if (equal? flag 'regular)
-;;	       (begin
-;;		 (if (and
-;;		      (not (equal? (string-match file-string filename) #f))
-;;		      (not (equal? (string-match sub-string filename) #f)))
-;;		     (begin
-;;		       (set! file-list (append file-list (list (basename filename))))
-;;		       ))))
-;;	   #t)))
-;;      
-;;      file-list
-;;      )))
-
-(define (list-all-files init-path)
-  (let ((counter 0)
-	(file-list (list)))
-    (begin
-      (nftw init-path
-	    (lambda (filename statinfo flag base level)
-	      (begin
-		(if (equal? flag 'regular)
-		    (set! file-list (append file-list (list filename))))
-		#t)))
-
-      file-list)))
 
 
 
