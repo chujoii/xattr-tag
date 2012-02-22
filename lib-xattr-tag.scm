@@ -83,7 +83,7 @@
 (use-modules (ice-9 regex))
 
 (define (get-xattr-tag filename tag-name)
-  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\"") "")))))) ;; filename with quotes because it can contain space
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\" 2>/dev/null") "")))))) ;; filename with quotes because it can contain space
     (if (eq? nil getfattr-result)
 	nil
 	(string-split
@@ -96,7 +96,7 @@
 
 
 (define (get-xattr-raw-tag filename)
-  (system-with-output-to-string (string-join (list "getfattr --dump \"" filename "\"") "")))
+  (system-with-output-to-string (string-join (list "getfattr --dump \"" filename "\" 2>/dev/null") "")))
 
 
 
