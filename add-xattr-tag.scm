@@ -1,5 +1,6 @@
 #!/usr/bin/guile -s
 !#
+; coding: utf-8
 
 ;;;; add-xattr-tag.scm ---  append new xattr to old xattr
 ;;;; (and add for file.ext file.etx.txt with copy of xattr)
@@ -51,13 +52,14 @@
 
 
 
-; coding: utf-8
 (setlocale LC_ALL "en_US.UTF-8")
 
 (load "../battery-scheme/system-cmd.scm")
 (load "../battery-scheme/string.scm")
 (load "../battery-scheme/unique-list.scm")
+(load "xattr-config.scm")
 (load "lib-xattr-tag.scm")
+
 
 (define nil '())
 
@@ -67,5 +69,6 @@
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
   (if (not (check-xattr-tag filename))
-      (display "error in checksum\n")
-      (set-xattr-tag filename "user.metatag" (unique-list (append filetags (get-xattr-tag filename "user.metatag"))))))
+      (display "error during check\n")
+      (begin (set-xattr-tag filename "user.metatag" (unique-list (append filetags (get-xattr-tag-text filename "user.metatag"))))
+	     (set-info-tag filename (string-join (list filename xattr-file-extension) "")))))

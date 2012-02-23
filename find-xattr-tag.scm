@@ -1,5 +1,6 @@
 #!/usr/bin/guile -s
 !#
+; coding: utf-8
 
 ;;;; find-xattr-tag.scm ---  find file by xattr, and other attributes
 
@@ -54,7 +55,6 @@
 
 
 
-; coding: utf-8
 (setlocale LC_ALL "en_US.UTF-8")
 
 (define nil '())
@@ -104,7 +104,7 @@
 
 (define (calc-rating filename tags)
   (include-list tags 
-		(append (get-path-file-name-tag filename) (get-xattr-tag filename "user.metatag"))))
+		(append (get-path-file-name-tag filename) (get-xattr-tag-text filename "user.metatag"))))
 
 
 

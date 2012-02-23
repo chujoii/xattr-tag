@@ -1,5 +1,6 @@
 #!/usr/bin/guile -s
 !#
+; coding: utf-8
 
 ;;;; set-xattr-tag.scm ---  write (delete old xattr) to file
 ;;;; (and duplicate xattr in file file.ext.txt (for file.ext))
@@ -51,20 +52,24 @@
 
 
 
-; coding: utf-8
 (setlocale LC_ALL "en_US.UTF-8")
 
 (load "../battery-scheme/system-cmd.scm")
+(load "xattr-config.scm")
 (load "lib-xattr-tag.scm")
 
 
 
-
+;; bug in ?all? version before 2.0.? (2.0.1 with bug) with function 'command-line"
+;; http://lists.gnu.org/archive/html/guile-user/2011-11/msg00015.html
+;; i am use git version (guile (GNU Guile) 2.1.0.48-3c65e)
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
 
-  (display "start=")(display filename)(newline)
+  
+  (display "filename=")(display filename)(newline)
+  (display "filetags=")(display filetags)(newline)
 
   (set-xattr-tag filename "user.metatag" filetags)
 
@@ -77,6 +82,6 @@
   (set-xattr-tag filename "user.checksum.sha256"
 		 (list (get-sha256 filename)))
   
-  (set-info-tag filename (string-join (list filename ".txt") "")))
+  (set-info-tag filename (string-join (list filename xattr-file-extension) "")))
 
 

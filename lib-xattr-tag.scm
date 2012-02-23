@@ -1,5 +1,6 @@
 #!/usr/bin/guile -s
 !#
+; coding: utf-8
 
 ;;;; lib-xattr-tag.scm ---  library functions work with xattr
 
@@ -50,7 +51,6 @@
 
 
 
-; coding: utf-8
 (setlocale LC_ALL "en_US.UTF-8")
 
 
@@ -61,6 +61,7 @@
 ;;; ------------------------------------ set
 
 (define (set-xattr-tag filename tag-name tags-list)
+  (display "xattr=")(display tags-list)(newline)
   (system (string-join (list "setfattr"
 			     " -n " tag-name
 			     " -v \"" (string-join tags-list " ") "\""
@@ -82,8 +83,22 @@
 ;;; ------------------------------------ get
 (use-modules (ice-9 regex))
 
-(define (get-xattr-tag filename tag-name)
-  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\" 2>/dev/null") "")))))) ;; filename with quotes because it can contain space
+(define (get-xattr-tag-text filename tag-name)
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -e text -n " tag-name " \"" filename "\" 2>/dev/null ") "")))))) ;; filename with quotes because it can contain space
+    (if (eq? nil getfattr-result)
+	nil
+	(string-split
+	 (string-cut
+	  (car getfattr-result) 1 -1)
+	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
+	 ;; fixme (?<=").*(?=")
+	 #\ ))))
+
+
+
+(define (get-xattr-tag-default filename tag-name)
+  ;; default for ASCII = text; for nonlatin symbols = base64
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\" 2>/dev/null ") "")))))) ;; filename with quotes because it can contain space
     (if (eq? nil getfattr-result)
 	nil
 	(string-split
@@ -96,7 +111,7 @@
 
 
 (define (get-xattr-raw-tag filename)
-  (system-with-output-to-string (string-join (list "getfattr --dump \"" filename "\" 2>/dev/null") "")))
+  (system-with-output-to-string (string-join (list "getfattr --dump \"" filename "\" 2>/dev/null ") "")))
 
 
 
@@ -113,19 +128,28 @@
   (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\ )))
 
 (define (check-xattr-tag filename)
-  (let ((chk-md5    (equal? (get-xattr-tag filename "user.checksum.md5")
+  (let ((chk-md5    (equal? (get-xattr-tag-default filename "user.checksum.md5")
 			    (list (get-md5 filename))))
-	(chk-sha1   (equal? (get-xattr-tag filename "user.checksum.sha1")
+	(chk-sha1   (equal? (get-xattr-tag-default filename "user.checksum.sha1")
 			    (list (get-sha1 filename))))
-	(chk-sha256 (equal? (get-xattr-tag filename "user.checksum.sha256")
+	(chk-sha256 (equal? (get-xattr-tag-default filename "user.checksum.sha256")
 			    (list (get-sha256 filename))))
-	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list "\"" filename ".txt\"") "")))
-			  (generated-xattr-tag (get-xattr-raw-tag filename)))
+	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list filename xattr-file-extension) "")))
+			  (generated-xattr-tag (string-cut (get-xattr-raw-tag filename) 0 -1)))
+
+
+;		      (display "stor#")(display  stored-xattr-tag)(display "=end")(newline)
+;		      (display "genr#")(display  generated-xattr-tag)(display "=end")(newline)
+;		      (display "stor=")(display  (string-take-right stored-xattr-tag    (- (string-length stored-xattr-tag)    (string-index stored-xattr-tag #\newline) 1)))(display "=end")(newline)
+;		      (display "genr=")(display  (string-take-right generated-xattr-tag (- (string-length generated-xattr-tag) (string-index generated-xattr-tag #\newline) 1)))(display "=end")(newline)
+
+
+
+
 		      ;; remove first line because it contains file name with absolute path OR file name with relative path
-		      (string= (string-take-right stored-xattr-tag (- (string-length stored-xattr-tag) (string-index stored-xattr-tag #\
-) 1))
-			       (string-take-right generated-xattr-tag (- (string-length generated-xattr-tag) (string-index generated-xattr-tag #\
-) 1))))))
+		      (string= (string-take-right stored-xattr-tag    (- (string-length stored-xattr-tag) (string-index stored-xattr-tag #\newline) 1))
+			       (string-take-right generated-xattr-tag (- (string-length generated-xattr-tag) (string-index generated-xattr-tag #\newline) 1))))))
+
 
     (display "check md5\t")(display chk-md5)(newline)
     (display "check sha1\t")(display chk-sha1)(newline)

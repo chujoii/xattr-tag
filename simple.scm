@@ -1,5 +1,7 @@
 #!/usr/bin/guile -s
 !#
+; coding: utf-8
+
 
 ;;;; simple.scm ---  simple example of use xattr
 
@@ -49,8 +51,13 @@
 ;;; Code:
 
 
+(setlocale LC_ALL "en_US.UTF-8")
+;(setlocale LC_ALL "")
+(set-port-encoding! (current-output-port) "utf-8")
+(set-port-encoding! (current-input-port) "utf-8")
 
 (load "../battery-scheme/system-cmd.scm")
 (load "lib-xattr-tag.scm")
 
-(system-with-output-to-string "getfattr -n user.metatag \"/home/chujoii/project/xattr-tag/q/Предложение_по_популяризация_xattr.maff\"")
+;(system-with-output-to-string "getfattr -n user.metatag \"/home/chujoii/project/xattr-tag/q/Предложение_по_популяризация_xattr.maff\"")
+(display (command-line))
