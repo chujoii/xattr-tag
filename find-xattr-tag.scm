@@ -102,9 +102,9 @@
 
 
 
-(define (calc-rating filename tags)
+(define (calc-rating filename-tags tags)
   (include-list tags 
-		(append (get-path-file-name-tag filename) (get-xattr-tag-text filename "user.metatag"))))
+		(append (get-path-file-name-tag (car filename-tags)) (cdr filename-tags))))
 
 
 
@@ -121,7 +121,7 @@
 
 
 (define (find-tag startpath tag-list)
-  (map (lambda (filepath) (list filepath (calc-rating filepath tag-list))) (list-all-files startpath)))
+  (map (lambda (filepath-tags) (list (car filepath-tags) (calc-rating filepath-tags tag-list))) (generate-list-file-tag startpath)))
 
 
 
@@ -133,15 +133,5 @@
   (print-list-without-bracket (sort
 			       (find-tag filename filetags)
 			       (lambda (x y) (< (cadr x) (cadr y))))))
-
-
-;(let ((filename "/home/chujoii/project/xattr-tag/q")
-;      (filetags (list "Предложение")))
-;
-;  (print-list-without-bracket (sort
-;			       (find-tag filename filetags)
-;			       (lambda (x y) (< (cadr x) (cadr y))))))
-
-
 
 

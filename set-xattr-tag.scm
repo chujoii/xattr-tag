@@ -82,6 +82,6 @@
   (set-xattr-tag filename "user.checksum.sha256"
 		 (list (get-sha256 filename)))
   
-  (set-info-tag filename (string-join (list filename xattr-file-extension) "")))
+  (set-info-tag filename (string-join (list filename *xattr-file-extension*) "")))
 
 

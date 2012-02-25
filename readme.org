@@ -94,6 +94,8 @@ user.tag.artist
 user.tag.title
 user.metatag
 
+* another version
+  find . -type f -exec getfattr -e "text" -d {} \;
 
 * particulars
 | program  | possibility | commentary                                                                                               |

@@ -61,7 +61,6 @@
 ;;; ------------------------------------ set
 
 (define (set-xattr-tag filename tag-name tags-list)
-  (display "xattr=")(display tags-list)(newline)
   (system (string-join (list "setfattr"
 			     " -n " tag-name
 			     " -v \"" (string-join tags-list " ") "\""
@@ -115,6 +114,9 @@
 
 
 
+(define (generate-list-file-tag startpath)
+  (map (lambda (filepath) (append (list filepath) (get-xattr-tag-text filepath "user.metatag"))) (list-all-files startpath)))
+
 
 ;;; ------------------------------------- check
 
@@ -134,7 +136,7 @@
 			    (list (get-sha1 filename))))
 	(chk-sha256 (equal? (get-xattr-tag-default filename "user.checksum.sha256")
 			    (list (get-sha256 filename))))
-	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list filename xattr-file-extension) "")))
+	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list filename *xattr-file-extension*) "")))
 			  (generated-xattr-tag (string-cut (get-xattr-raw-tag filename) 0 -1)))
 
 

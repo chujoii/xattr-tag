@@ -71,4 +71,4 @@
   (if (not (check-xattr-tag filename))
       (display "error during check\n")
       (begin (set-xattr-tag filename "user.metatag" (unique-list (append filetags (get-xattr-tag-text filename "user.metatag"))))
-	     (set-info-tag filename (string-join (list filename xattr-file-extension) "")))))
+	     (set-info-tag filename (string-join (list filename *xattr-file-extension*) "")))))
