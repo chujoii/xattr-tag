@@ -37,12 +37,12 @@
 
 ;;; Usage:
 
-;; ./generate-xattr-tag.scm store/doc/
+;; generate-xattr-tag.scm   path/to/file/storage
 
 
 ;;; History:
 
-;; Version 0.1 was created at 2012.february.25
+;; Version 0.1 was created at 2012.february.03
 
 
 
@@ -50,21 +50,13 @@
 
 
 
-(setlocale LC_ALL "en_US.UTF-8")
-
-(define nil '())
-
-(load "../battery-scheme/system-cmd.scm")
-(load "../battery-scheme/string.scm")
-(load "../battery-scheme/print-list.scm")
-(load "../battery-scheme/recursive-file-list.scm")
-(load "../battery-scheme/unique-list.scm")
-(load "xattr-config.scm")
 (load "lib-xattr-tag.scm")
 
 
 
 (define (load-exist-tag filename)
+  (create-if-not-exist-file filename nil)
+
   ;; may require verification of data
   (read (open-file filename "r")))
 
@@ -82,26 +74,19 @@
 
 
 (define (generate-zsh-completion-file zsh-file string-tags)
-  (define p-file (open-output-file zsh-file))
-  (display (string-join (list "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
-			    string-tags
-			    ")\"\n}\n\n_xattr \"$@\" && return 0\n")
-		      "")
-	 p-file)
-  (close p-file))
+  ;; fixme: perhaps more correctly update the labels as they are created and the search
+  (create-if-not-exist-file zsh-file 
+			    (string-join (list "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
+					       string-tags
+					       ")\"\n}\n\n_xattr \"$@\" && return 0\n")
+					 "")))
 
-
-(define (generate-list-xattr-tag-file tag-file list-tags)
-  (define p-file (open-output-file tag-file))
-  (write list-tags
-	 p-file)
-  (close p-file))
 
 
 (let ((path (cadr (command-line))))
   (let ((tag-list (unique-list (append (generate-tag-list path) (load-exist-tag *list-xattr-tag-file*)))))
     
     (generate-zsh-completion-file *zsh-completion-file* (string-join tag-list " "))
-    (generate-list-xattr-tag-file *list-xattr-tag-file* tag-list)))
+    (write-to-file *list-xattr-tag-file* tag-list)))
 
 

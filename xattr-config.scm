@@ -1,8 +1,8 @@
-
+;; extension of the file which stores duplicate information
 (define *xattr-file-extension* ".txt")
 
-(define *storage-base-dir* "/home/store/")
+;; full path to the zsh auto-completion file
+(define *zsh-completion-file* (string-join (list *user-home-dir* "/.config/zsh/completion/_xattr-tag") ""))
 
-(define *zsh-completion-file* "/home/chujoii/.config/zsh/completion/_xattr-tag")
-
-(define *list-xattr-tag-file* "list-xattr-tag.scm")
+;; full path to the file that stores a list of used tags
+(define *list-xattr-tag-file* (string-join (list *user-home-dir* "/.cache/xattr-tag/list-xattr-tag.scm") ""))

@@ -1,108 +1,173 @@
 * license
- readme.org ---  description
+  readme.org ---  description
+  
+  
+  
+  Copyright (C) 2012 Roman V. Prikhodchenko
+  
+  
+  
+  Author: Roman V. Prikhodchenko <chujoii@gmail.com>
+  
+  
+  
+  This file is part of xattr-tag.
+  
+  xattr-tag is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  xattr-tag is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
+  
+  
+  
+  Keywords: xattr tag search
+  
+  
+  
+  Usage:
+  
+  read with emacs (3__3) org mode
+  
+  
+  
+  History:
+  
+  Version 0.1 was created at 2012.february.03
+  
+  
+  
+  Code:
+  
+  
+  
+  
+  
+* low level work with xattr  
+** enable xattr (USE flag in make.conf)
 
+   set enable xattr for you file system in /usr/src/linux/.config
+   #----------------------8<----------------------------
+   CONFIG_EXT3_FS_XATTR=y
+   CONFIG_EXT4_FS_XATTR=y
+   #---------------------->8----------------------------
+   
+   sudo mount -o remount,user_xattr
+   or
+   permanently enable by editing /etc/fstab :
+   #----------------------8<----------------------------
+   /etc/fstab/dev/sdb1 /export ext3 defaults,user_xattr 1 2
+   #---------------------->8----------------------------
+   
+** set
+   setfattr -n user.foo -v bar hello.txt
+   
+** list of extended attribute names
+   getfattr hello.txt
 
+** get
+   getfattr -n user.foo hello.txt
+   file: hello.txtuser.foo="bar"
+   or:
+   getfattr -d hello.txt
 
- Copyright (C) 2012 Roman V. Prikhodchenko
+** remove
+   setfattr -x user.foo hello.txt
 
+** backup all extended attributes:
+   getfattr --dump * > data_file
 
+** restore all extended attributes
+   setfattr --restore=data_file
 
- Author: Roman V. Prikhodchenko <chujoii@gmail.com>
+** search 
+   find path/to/file/storage -type f -exec getfattr -e "text" -d {} \;
+   or with use "recursive globbing"
+   getfattr -e "text" -d path/to/file/storage/**
+   
+** xattr examples:
+  
+   user.checksum.md5
+   user.checksum.sha1
+   user.checksum.sha256
+   user.original_author
+   user.application
+   user.project
+   user.comment
+   user.icon.svg
+   user.icon.png.32
+   user.tag  (T_T) already used by another program: user.tag.artist, user.tag.title
+   user.metatag
+     
+** particulars
 
-
-
-    This file is part of xattr-tag.
-
-    xattr-tag is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    xattr-tag is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with xattr-tag.  If not, see <http://www.gnu.org/licenses/>.
-
-
-
- Keywords: xattr tag search
-
-
-
- Usage:
-
- read with emacs
-
-
-
- History:
-
- Version 0.1 was created at 2012.february.03
-
-
-
- Code:
-
-
-
-
-*    enable xattr (USE flag in make.conf)
- sudo mount -oremount,user_xattr
-    or permanently enable by editing:
- /etc/fstab/dev/sdb1 /export ext3 defaults,user_xattr 1 2
-    Testing if extended attribute works:
-
-*    set
- setfattr -n user.foo -v bar hello.txt
-
-*    list of tag
- getfattr hello.txt
-
-*    get
- getfattr -n user.foo hello.txt
-    file: hello.txtuser.foo="bar"
-    or:
- getfattr -d hello.txt
-
-*    remove
- setfattr -x user.foo hello.txt
-
-
-*    Backup all extended attributes:
- getfattr --dump * > data_file
-
-*    Restore all extended attributes
- setfattr --restore=data_file
-
-* examples:
-
-
-user.checksum.md5
-user.checksum.sha1
-user.checksum.sha256
-user.original_author
-user.application
-user.project
-user.comment
-user.icon.svg
-user.icon.png.32
-user.tag     :( already used:
-user.tag.artist
-user.tag.title
-user.metatag
-
-* another version
-  find . -type f -exec getfattr -e "text" -d {} \;
-
-* particulars
 | program  | possibility | commentary                                                                                               |
 |----------+-------------+----------------------------------------------------------------------------------------------------------|
 | cp       | +           | (cp --preserve=xattr)  or  (cp --preserve=all) or set alias (alias cp='nocorrect cp -iR --preserve=all') |
 | mv       | +           |                                                                                                          |
-| rsync    | +           | rsync --xattrs                                                                                                   |
-| mc       | not         | not work in version 4.8.1                                                                                |
+| rsync    | +           | rsync --xattrs                                                                                           |
+| mc       | not         | not work (version 4.8.1)                                                                                 |
 | nautilus | +           |                                                                                                          |
+| dolphin  | ?           | need check                                                                                               |
 
+
+* help
+
+** install
+
+   you need enable xattr in kernel and in filesystem
+
+
+   change config file (created after first use): ~/.config/xattr-tag/xattr-config.scm
+   #----------------------8<----------------------------
+   (define *xattr-file-extension* ".txt")
+   (define *zsh-completion-file* (string-join (list *user-home-dir* "/.config/zsh/completion/_xattr-tag") ""))
+   (define *list-xattr-tag-file* (string-join (list *user-home-dir* "/.cache/xattr-tag/list-xattr-tag.scm") ""))
+   #---------------------->8----------------------------
+
+
+   change config file: ~/.zshrc
+   #----------------------8<----------------------------
+   # add path
+   PATH="$HOME/bin/xattr-tag:$PATH"
+   #
+   # COMPLETION SETTINGS
+   # add custom completion scripts
+   fpath=($fpath ~/.config/zsh/completion)
+   # Autoload all shell functions from all directories in $fpath
+   for func in $^fpath/*(N-.x:t); autoload $func
+   # compsys initialization
+   autoload -U compinit
+   compinit
+   # show completion menu when number of options is at least 2
+   zstyle ':completion:*' menu select=2
+   #---------------------->8----------------------------
+   
+** use:
+   
+   set tag:
+   set-xattr-tag.scm        path/to/test.txt     tag1 tag2 tag3
+   
+   adding tags (preserving the existing tag):
+   add-xattr-tag.scm        path/to/test.txt     tag1 tag2 tag3
+   
+   find tag in path (with auto-completion):
+   find-xattr-tag.scm       path/to/file/storage tag1 tag2 tag3
+   
+   generate tag list for zsh completion (fixme: you need restart terminal for update completion):
+   generate-xattr-tag.scm   path/to/file/storage
+      
+** clean
+   
+   you can remove files:
+   ~/.cache/xattr-tag/list-xattr-tag.scm
+   ~/.config/zsh/completion/_xattr-tag
+   ~/.config/xattr-tag/xattr-config.scm
+   

@@ -38,7 +38,7 @@
 
 ;;; Usage:
 
-;; ./find-xattr-tag.scm test.txt tag1 tag2 tag3
+;; set-xattr-tag.scm        path/to/test.txt     tag1 tag2 tag3
 
 
 
@@ -52,17 +52,13 @@
 
 
 
-(setlocale LC_ALL "en_US.UTF-8")
-
-(load "../battery-scheme/system-cmd.scm")
-(load "xattr-config.scm")
 (load "lib-xattr-tag.scm")
 
 
 
-;; bug in ?all? version before 2.0.? (2.0.1 with bug) with function 'command-line"
+;; bug in ?all? version before 2.0.? (2.0.1 with bug) with function "command-line"
 ;; http://lists.gnu.org/archive/html/guile-user/2011-11/msg00015.html
-;; i am use git version (guile (GNU Guile) 2.1.0.48-3c65e)
+;; i am use git version (guile (GNU Guile) 2.1.0.48-3c65e) without bug
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))

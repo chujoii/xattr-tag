@@ -54,8 +54,23 @@
 (setlocale LC_ALL "en_US.UTF-8")
 
 
-(load "../battery-scheme/file-contents.scm")
 
+(define *user-home-dir* (array-ref (getpwuid (geteuid)) 5))
+(define nil '())
+
+(load "../battery-scheme/file-contents.scm")
+(load "../battery-scheme/system-cmd.scm")
+(load "../battery-scheme/string.scm")
+(load "../battery-scheme/print-list.scm")
+(load "../battery-scheme/recursive-file-list.scm")
+(load "../battery-scheme/unique-list.scm")
+(load "../battery-scheme/dir-and-file.scm")
+
+
+(let ((user-xattr-cfg (string-join (list *user-home-dir*  "/.config/xattr-tag/xattr-config.scm") "")))
+  (display user-xattr-cfg)(newline)
+  (copy-if-not-exist-file "xattr-config.scm" user-xattr-cfg)
+  (load user-xattr-cfg))
 
 
 ;;; ------------------------------------ set
@@ -68,14 +83,15 @@
 		       "")))
 
 
+
 ;;(define (set-info-file file tag-list)
 ;;  (define info-file (open-output-file file))
 ;;  (write tag-list info-file)
 ;;  (write (newline) info-file)
 ;;  (close info-file))
-
 (define (set-info-tag filename result-file)
   (system (string-join (list "getfattr --dump \"" filename "\" > \"" result-file "\"") "")))
+
 
 
 
@@ -84,7 +100,7 @@
 
 (define (get-xattr-tag-text filename tag-name)
   (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -e text -n " tag-name " \"" filename "\" 2>/dev/null ") "")))))) ;; filename with quotes because it can contain space
-    (if (eq? nil getfattr-result)
+    (if (null? getfattr-result)
 	nil
 	(string-split
 	 (string-cut
@@ -98,7 +114,7 @@
 (define (get-xattr-tag-default filename tag-name)
   ;; default for ASCII = text; for nonlatin symbols = base64
   (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\" 2>/dev/null ") "")))))) ;; filename with quotes because it can contain space
-    (if (eq? nil getfattr-result)
+    (if (null? getfattr-result)
 	nil
 	(string-split
 	 (string-cut
@@ -138,16 +154,6 @@
 			    (list (get-sha256 filename))))
 	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list filename *xattr-file-extension*) "")))
 			  (generated-xattr-tag (string-cut (get-xattr-raw-tag filename) 0 -1)))
-
-
-;		      (display "stor#")(display  stored-xattr-tag)(display "=end")(newline)
-;		      (display "genr#")(display  generated-xattr-tag)(display "=end")(newline)
-;		      (display "stor=")(display  (string-take-right stored-xattr-tag    (- (string-length stored-xattr-tag)    (string-index stored-xattr-tag #\newline) 1)))(display "=end")(newline)
-;		      (display "genr=")(display  (string-take-right generated-xattr-tag (- (string-length generated-xattr-tag) (string-index generated-xattr-tag #\newline) 1)))(display "=end")(newline)
-
-
-
-
 		      ;; remove first line because it contains file name with absolute path OR file name with relative path
 		      (string= (string-take-right stored-xattr-tag    (- (string-length stored-xattr-tag) (string-index stored-xattr-tag #\newline) 1))
 			       (string-take-right generated-xattr-tag (- (string-length generated-xattr-tag) (string-index generated-xattr-tag #\newline) 1))))))
@@ -159,4 +165,6 @@
     (display "check info\t")(display chk-info)(newline)
 
     (and chk-md5 chk-sha1 chk-sha256 chk-info)))
+
+
 

@@ -38,7 +38,7 @@
 
 ;;; Usage:
 
-;; ./add-xattr-tag.scm test.txt tag1 tag2 tag3
+;; add-xattr-tag.scm        path/to/test.txt     tag1 tag2 tag3
 
 
 
@@ -52,16 +52,8 @@
 
 
 
-(setlocale LC_ALL "en_US.UTF-8")
 
-(load "../battery-scheme/system-cmd.scm")
-(load "../battery-scheme/string.scm")
-(load "../battery-scheme/unique-list.scm")
-(load "xattr-config.scm")
 (load "lib-xattr-tag.scm")
-
-
-(define nil '())
 
 
 

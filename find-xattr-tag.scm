@@ -37,12 +37,9 @@
 
 ;;; Usage:
 
-;; ./find-xattr-tag.scm store/doc/ tag1 tag2 tag3
+;; find-xattr-tag.scm       path/to/file/storage tag1 tag2 tag3
 ;; search in path "store/doc/" files with  "tag1 AND tag2 AND tag3"
-;;
-;; or you can use this command:
-;;
-;; find . -type f -exec getfattr -d {} \;
+
 
 
 ;;; History:
@@ -55,26 +52,13 @@
 
 
 
-(setlocale LC_ALL "en_US.UTF-8")
-
-(define nil '())
-
-(load "../battery-scheme/system-cmd.scm")
-(load "../battery-scheme/string.scm")
-(load "../battery-scheme/print-list.scm")
-(load "../battery-scheme/recursive-file-list.scm")
 (load "lib-xattr-tag.scm")
 
 
 
-
-
-;;(define (member-tf x lst)
-;;  (if (member x lst) #t #f))
-
 (define (count-include x lst)
   (define (counter-true list-tf)
-    (if (eq? nil list-tf)
+    (if (null? list-tf)
 	0
 	(+ (if (car list-tf) 1 0) (counter-true (cdr list-tf)))))
   (counter-true (map (lambda (i) (string-contains-ci i x)) lst)))
@@ -84,10 +68,9 @@
   ;; list-1 included in list-2
   ;; fixme name "include-list"
   ;; fixme if initial list-1 === nil   => #t
-  (if (equal? list-1 nil)
+  (if (null? list-1)
       0
       (+ (count-include (car list-1) list-2) (include-list (cdr list-1) list-2))))
-;;    (and (member-tf (car list-1) list-2) (include-list (cdr list-1) list-2))))
 
 
 
@@ -99,23 +82,9 @@
 
 
 
-
-
-
 (define (calc-rating filename-tags tags)
   (include-list tags 
 		(append (get-path-file-name-tag (car filename-tags)) (cdr filename-tags))))
-
-
-
-
-;;(define (procf filename statinfo flag)
-;;  (if (and (equal? 'regular flag)
-;;	   (include-list  list-2) )
-;;	 (display filename)))
-;;  #t) ;; fixme
-
-
 
 
 
@@ -124,8 +93,6 @@
   (map (lambda (filepath-tags) (list (car filepath-tags) (calc-rating filepath-tags tag-list))) (generate-list-file-tag startpath)))
 
 
-
-;(display (list-all-files "/home/chujoii/project/xattr-tag/q"))
 
 (let ((filename (cadr (command-line)))
       (filetags (cddr (command-line))))
