@@ -90,15 +90,22 @@
 
 
 (define (find-tag startpath tag-list)
-  (map (lambda (filepath-tags) (list (car filepath-tags) (calc-rating filepath-tags tag-list))) (generate-list-file-tag startpath)))
+  (let ((list-of-files-with-tag (generate-list-file-tag startpath)))
+    ;; automatic update tag-list and zsh-completion
+    (append-to-index-and-save (2d-1d (map (lambda (filepath-tags) (cdr filepath-tags))
+					  list-of-files-with-tag)))
+    
+    ;; find-tag
+    (map (lambda (filepath-tags) (list (car filepath-tags) (calc-rating filepath-tags tag-list)))
+	 list-of-files-with-tag)))
 
 
 
-(let ((filename (cadr (command-line)))
+(let ((start-path (cadr (command-line)))
       (filetags (cddr (command-line))))
 
   (print-list-without-bracket (sort
-			       (find-tag filename filetags)
+			       (find-tag start-path filetags)
 			       (lambda (x y) (< (cadr x) (cadr y))))))
 
 

@@ -65,6 +65,7 @@
 (load "../battery-scheme/recursive-file-list.scm")
 (load "../battery-scheme/unique-list.scm")
 (load "../battery-scheme/dir-and-file.scm")
+(load "../battery-scheme/flat-list.scm")
 
 
 (let ((user-xattr-cfg (string-join (list *user-home-dir*  "/.config/xattr-tag/xattr-config.scm") "")))
@@ -91,7 +92,6 @@
 ;;  (close info-file))
 (define (set-info-tag filename result-file)
   (system (string-join (list "getfattr --dump \"" filename "\" > \"" result-file "\"") "")))
-
 
 
 
@@ -134,6 +134,14 @@
   (map (lambda (filepath) (append (list filepath) (get-xattr-tag-text filepath "user.metatag"))) (list-all-files startpath)))
 
 
+
+
+(define (load-exist-tag filename)
+  (create-if-not-exist-file-with-write filename nil)
+  ;; fixme: may require verification of data
+  (read (open-file filename "r")))
+
+
 ;;; ------------------------------------- check
 
 (define (get-md5 filename)
@@ -167,4 +175,19 @@
     (and chk-md5 chk-sha1 chk-sha256 chk-info)))
 
 
+;;; ------------------------------------- zsh auto-completion
 
+(define (generate-zsh-completion-file zsh-file string-tags)
+  ;; fixme: perhaps more correctly update the labels as they are created and the search
+  (display-to-file zsh-file 
+		   (string-join (list "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
+				      string-tags
+				      ")\"\n}\n\n_xattr \"$@\" && return 0\n")
+				"")))
+
+
+(define (append-to-index-and-save tag-list)
+  (let ((full-tag-list (unique-list (append tag-list (load-exist-tag *list-xattr-tag-file*)))))
+    
+    (generate-zsh-completion-file *zsh-completion-file* (string-join full-tag-list " "))
+    (write-to-file *list-xattr-tag-file* full-tag-list)))

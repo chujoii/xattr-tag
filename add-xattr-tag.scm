@@ -59,8 +59,10 @@
 
 
 (let ((filename (cadr (command-line)))
-      (filetags (cddr (command-line))))
+      (tag-list (cddr (command-line))))
   (if (not (check-xattr-tag filename))
       (display "error during check\n")
-      (begin (set-xattr-tag filename "user.metatag" (unique-list (append filetags (get-xattr-tag-text filename "user.metatag"))))
-	     (set-info-tag filename (string-join (list filename *xattr-file-extension*) "")))))
+      (begin (set-xattr-tag filename "user.metatag" (unique-list (append tag-list (get-xattr-tag-text filename "user.metatag"))))
+	     (set-info-tag filename (string-join (list filename *xattr-file-extension*) ""))
+	     ;; automatic update tag-list and zsh-completion
+	     (append-to-index-and-save tag-list))))

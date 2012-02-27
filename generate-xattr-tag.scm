@@ -54,39 +54,15 @@
 
 
 
-(define (load-exist-tag filename)
-  (create-if-not-exist-file filename nil)
-
-  ;; may require verification of data
-  (read (open-file filename "r")))
 
 
 
-(define (2d-1d start-list)
-  (define (flat flat-list dim-list)
-    (if (null? dim-list)
-	flat-list
-	(flat (append flat-list (car dim-list)) (cdr dim-list))))
-  (flat (list) start-list))
+
 
 (define (generate-tag-list path)
   (unique-list (2d-1d (map (lambda (file-tag) (cdr file-tag)) (generate-list-file-tag path)))))
 
 
-(define (generate-zsh-completion-file zsh-file string-tags)
-  ;; fixme: perhaps more correctly update the labels as they are created and the search
-  (create-if-not-exist-file zsh-file 
-			    (string-join (list "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
-					       string-tags
-					       ")\"\n}\n\n_xattr \"$@\" && return 0\n")
-					 "")))
-
-
 
 (let ((path (cadr (command-line))))
-  (let ((tag-list (unique-list (append (generate-tag-list path) (load-exist-tag *list-xattr-tag-file*)))))
-    
-    (generate-zsh-completion-file *zsh-completion-file* (string-join tag-list " "))
-    (write-to-file *list-xattr-tag-file* tag-list)))
-
-
+  (append-to-index-and-save (generate-tag-list path)))

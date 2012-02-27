@@ -61,13 +61,13 @@
 ;; i am use git version (guile (GNU Guile) 2.1.0.48-3c65e) without bug
 
 (let ((filename (cadr (command-line)))
-      (filetags (cddr (command-line))))
+      (tag-list (cddr (command-line))))
 
   
   (display "filename=")(display filename)(newline)
-  (display "filetags=")(display filetags)(newline)
+  (display "tag-list=")(display tag-list)(newline)
 
-  (set-xattr-tag filename "user.metatag" filetags)
+  (set-xattr-tag filename "user.metatag" tag-list)
 
   (set-xattr-tag filename "user.checksum.md5"
 		 (list (get-md5 filename)))
@@ -78,6 +78,7 @@
   (set-xattr-tag filename "user.checksum.sha256"
 		 (list (get-sha256 filename)))
   
-  (set-info-tag filename (string-join (list filename *xattr-file-extension*) "")))
-
-
+  (set-info-tag filename (string-join (list filename *xattr-file-extension*) ""))
+ 
+  ;; automatic update tag-list and zsh-completion
+  (append-to-index-and-save tag-list))

@@ -1,16 +1,16 @@
-* license
-  readme.org ---  description
+
+readme.org ---  description
+
+
+
+Copyright (C) 2012 Roman V. Prikhodchenko
+
+
+
+Author: Roman V. Prikhodchenko <chujoii@gmail.com>
+
   
-  
-  
-  Copyright (C) 2012 Roman V. Prikhodchenko
-  
-  
-  
-  Author: Roman V. Prikhodchenko <chujoii@gmail.com>
-  
-  
-  
+
   This file is part of xattr-tag.
   
   xattr-tag is free software: you can redistribute it and/or modify
@@ -28,28 +28,124 @@
   
   
   
-  Keywords: xattr tag search
+* Keywords: file search set xattr tag catalog indexer label
   
   
   
-  Usage:
+* Usage:
   
   read with emacs (3__3) org mode
   
   
   
-  History:
+* History:
   
   Version 0.1 was created at 2012.february.03
   
   
   
-  Code:
+* Dependences:
+  
+  guile (GNU Guile) 2.1.0.48-3c65e
+  
+  battery-scheme
   
   
   
   
   
+  
+* intro (en)
+
+** Program features:
+   User adds xattr tags to the files. Checksums are automatically added.
+   This information is duplicated in the comments to the file "file.ext.txt".
+   At this version, you can create tags, add to existing tags, search for tags (and the path and file name are also tagged).
+   For all the commands in the console (zsh) work completion, but you need to make the indexing already created tags.
+   When adding a new file, its tags are automatically added to the index.
+   When searching, found tags are added to the index.
+   
+   
+** Todo:
+   cleaning unused tags in index
+   search should not find "file.ext.txt" if file "file.ext" exist
+   create a database for files and tags for fast search and ability to recovery of tag
+   tags recovery (message about difference) for files do not match checksum or do not match xattr and "file.ext.txt"
+   use EXIF and other metadata from the file contents
+   graphical (GTK3) and libastral interface
+   transformation into a dragon: the grandeur and gluttony
+   many forks in C, C++ (Qt5), Python and Ruby
+
+* intro (ru)
+  
+** article
+  Наверное перед каждым пользователем компьютера возникает вопрос размещения и поиска файлов.
+  
+  https://www.linux.org.ru/forum/talks/5986039
+  https://www.linux.org.ru/forum/talks/6681085
+  https://www.linux.org.ru/forum/talks/1912277
+  https://www.linux.org.ru/forum/desktop/5763899
+  https://www.linux.org.ru/forum/talks/4947376
+
+  Существует несколько вариантов решения:
+  
+1. обычные каталоги 
+   +преимущество: переносимость (хотя если захочется скопировать один файл в глубине каталогов с ненужными файлами потребуются дополнительные телодвижения)
+   -недостаток: иногда файл подходит сразу в несколько каталогов (трудно решить где его буду искать когда он потребуется особенно для документации по смежным вопросам) в этом случае может помочь система категорий типа mkdir "[tag1] [tag2]", но есть ограничение на длинну пути и выглядеть будет некрасиво например для архива http://rosettacode.org/wiki/Read_entire_file или http://pleac.sourceforge.net/ 
+
+2. система символических ссылок (например один каталог для файлов, и куча каталогов с ссылками на соответствующие файлы)
+   +преимущество: ?
+   -недостаток: необходимость создания ссылок; непереносимость
+
+3. тэги (атрибуты, ярлыки) в виде комментариев к файлам (read.me, files.bbs, dirinfo, descript.ion)
+   +преимущество: переносимость (ограниченная переносимость в Linux: нужно не забывать копировать вместе с файлом)
+   -недостаток: в Linux не поддерживается работа с этими комментариями
+
+4. тэги в базе данных
+   +преимущества: работает в по умолчанию в одном из DE (например Gnome[Nautilus])
+   -недостаток: непереносимость между DE - если с одного компьютера на другой можно скопировать базу данных ~/.local/share/gvfs-metadata и там Gnome из увидит, но как заставить KDE воспринять эти тэги не знаю
+
+5. тэги в виде xattr
+   +преимущество: работают в Beagle и Nepomup
+   -недостаток: ограниченная переносимость; необходимость задания тэгов, не поддерживается (Meta)Tracker-ом
+
+6. ScrapBook(Firefox)
+   +преимущество: если нет других файлов кроме ScrapBook-а то достаточно удобно
+   -недостаток: будет два места хранения ScrapBook и файловая система (в место одной проблемы - две)
+
+7. файлы в базе данных DBFS
+   +преимущество: удобно задавать тэги
+   -недостаток: непереносимость; отсутствуют вменяемые реализации
+
+8. поисковые системы и каталогизаторы: (Meta)Tracker, Nepomuk, Beagle (заброшен), ...
+   +преимущество: не нужно никаких дополнительных действий, хотя можно вручную добавлять тэги к файлам (у этих тэгов с переносимостью не очень)
+   -недостаток: индексирует мало типов файлов (tracker например не индексирует .zip [.maff]); тормоза при индексации - tracker мучает винчестер вообще всегда после загрузки в течении нескольких часов (initial crawling http://www.mail-archive.com/tracker-list@gnome.org/msg04737.html); Nepomuk не сочетается с Gnome , Beagle вроде бы всё хорошо но заброшен и mono
+
+9. вообще не хранить файлы (есть google, yandex)
+   +преимущество: не нужно никаких дополнительных действий
+   -недостаток: свои файлы тоже нужно хранить; сайты исчезают или перемещаются; трудно снова сформулировать тот запрос и перерыть сотню ссылок
+
+
+** Program features:
+   K файлам вручную добавляются xattr тэги, а также контрольные суммы рассчитанные автоматически.
+   Эта информация дублируется в комментарии к файлу "file.ext.txt" в надежде на некоторую переносимость и возможность индексации Tracker-ом.
+   
+   В данный момент можно создавать тэги, добавлять к существующим тэгам, осуществлять поиск тэгов (причём путь и имя файла также являются тэгами и учавствуют в оценке рейтинга файла по данному запросу).
+   Для всех команд в консоли (zsh) работает автодополнение, но нужно производить индексацию существующих тэгов.
+   При добавлении нового файла, его тэги автоматически добавляются в индекс.
+   При поиске найденные тэги добавляются в индекс.
+
+** Todo (планы на будущее)
+   чистка индексных файлов от неиспользуемых тэгов
+   при поиске не находить "file.ext.txt" если есть "file.ext"
+   создать базу данных с файлами и тэгами для реактивного поиска и возможности восстановления тэгов
+   восстановление тэгов (сообщение о различиях) при несовпадении xattr и "file.ext.txt" или несовпадении контрольных сумм 
+   использование EXIF и прочей метаинформации из содержимого файлов
+   графический (GTK3) и libastral интерфейс
+   превращение в дракона: величие и прожорливость
+   многочисленные форки на C, C++ (Qt5), Python и Ruby
+
+
 * low level work with xattr  
 ** enable xattr (USE flag in make.conf)
 
@@ -113,9 +209,9 @@
 | cp       | +           | (cp --preserve=xattr)  or  (cp --preserve=all) or set alias (alias cp='nocorrect cp -iR --preserve=all') |
 | mv       | +           |                                                                                                          |
 | rsync    | +           | rsync --xattrs                                                                                           |
-| mc       | not         | not work (version 4.8.1)                                                                                 |
+| mc       | --          | not work (version 4.8.1)                                                                                 |
 | nautilus | +           |                                                                                                          |
-| dolphin  | ?           | need check                                                                                               |
+| dolphin  | --          | not work (version 2.0 (KDE 4.8.0))                                                                       |
 
 
 * help
@@ -171,3 +267,5 @@
    ~/.config/zsh/completion/_xattr-tag
    ~/.config/xattr-tag/xattr-config.scm
    
+
+
