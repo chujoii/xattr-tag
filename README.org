@@ -28,8 +28,12 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
   
   
   
-* Keywords: file search set xattr tag catalog indexer label
+* Keywords:
+  file search set xattr tag catalog indexer label
   
+
+* Description:
+  software package for easy creation and search tags xattr
   
   
 * Usage:
@@ -68,13 +72,13 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    
 ** Todo:
    cleaning unused tags in index
-   search should not find "file.ext.txt" if file "file.ext" exist
+   search should not display "file.ext.txt" if file "file.ext" exist
    create a database for files and tags for fast search and ability to recovery of tag
    tags recovery (message about difference) for files do not match checksum or do not match xattr and "file.ext.txt"
    use EXIF and other metadata from the file contents
    graphical (GTK3) and libastral interface
    transformation into a dragon: the grandeur and gluttony
-   many forks in C, C++ (Qt5), Python and Ruby
+   many forks, including the C, C++ (Qt5), Python, Ruby and other
 
 * intro (ru)
   
@@ -137,13 +141,13 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
 
 ** Todo (планы на будущее)
    чистка индексных файлов от неиспользуемых тэгов
-   при поиске не находить "file.ext.txt" если есть "file.ext"
+   при поиске не отображать "file.ext.txt" если есть файл "file.ext"
    создать базу данных с файлами и тэгами для реактивного поиска и возможности восстановления тэгов
    восстановление тэгов (сообщение о различиях) при несовпадении xattr и "file.ext.txt" или несовпадении контрольных сумм 
    использование EXIF и прочей метаинформации из содержимого файлов
    графический (GTK3) и libastral интерфейс
    превращение в дракона: величие и прожорливость
-   многочисленные форки на C, C++ (Qt5), Python и Ruby
+   многочисленные форки, в том числе на C, C++ (Qt5), Python, Ruby and other
 
 
 * low level work with xattr  
