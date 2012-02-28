@@ -1,5 +1,4 @@
-
-readme.org ---  description
+README.org ---  description
 
 
 
@@ -71,14 +70,14 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    
    
 ** Todo:
-   cleaning unused tags in index
-   search should not display "file.ext.txt" if file "file.ext" exist
-   create a database for files and tags for fast search and ability to recovery of tag
-   tags recovery (message about difference) for files do not match checksum or do not match xattr and "file.ext.txt"
-   use EXIF and other metadata from the file contents
-   graphical (GTK3) and libastral interface
-   transformation into a dragon: the grandeur and gluttony
-   many forks, including the C, C++ (Qt5), Python, Ruby and other
+   - cleaning unused tags in index
+   - search should not display "file.ext.txt" if file "file.ext" exist
+   - create a database for files and tags for fast search and ability to recovery of tag
+   - tags recovery (message about difference) for files do not match checksum or do not match xattr and "file.ext.txt"
+   - use EXIF and other metadata from the file contents
+   - graphical (GTK3) and libastral interface
+   - transformation into a dragon: the grandeur and gluttony
+   - many forks, including the C, C++ (Qt5), Python, Ruby and other
 
 * intro (ru)
   
@@ -140,30 +139,39 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    При поиске найденные тэги добавляются в индекс.
 
 ** Todo (планы на будущее)
-   чистка индексных файлов от неиспользуемых тэгов
-   при поиске не отображать "file.ext.txt" если есть файл "file.ext"
-   создать базу данных с файлами и тэгами для реактивного поиска и возможности восстановления тэгов
-   восстановление тэгов (сообщение о различиях) при несовпадении xattr и "file.ext.txt" или несовпадении контрольных сумм 
-   использование EXIF и прочей метаинформации из содержимого файлов
-   графический (GTK3) и libastral интерфейс
-   превращение в дракона: величие и прожорливость
-   многочисленные форки, в том числе на C, C++ (Qt5), Python, Ruby and other
+   - чистка индексных файлов от неиспользуемых тэгов
+   - при поиске не отображать "file.ext.txt" если есть файл "file.ext"
+   - создать базу данных с файлами и тэгами для реактивного поиска и возможности восстановления тэгов
+   - восстановление тэгов (сообщение о различиях) при несовпадении xattr и "file.ext.txt" или несовпадении контрольных сумм 
+   - использование EXIF и прочей метаинформации из содержимого файлов
+   - графический (GTK3) и libastral интерфейс
+   - превращение в дракона: величие и прожорливость
+   - многочисленные форки, в том числе на C, C++ (Qt5), Python, Ruby and other
 
 
 * low level work with xattr  
 ** enable xattr (USE flag in make.conf)
 
    set enable xattr for you file system in /usr/src/linux/.config
+
    #----------------------8<----------------------------
+
    CONFIG_EXT3_FS_XATTR=y
+
    CONFIG_EXT4_FS_XATTR=y
+
    #---------------------->8----------------------------
    
    sudo mount -o remount,user_xattr
+
    or
+
    permanently enable by editing /etc/fstab :
+
    #----------------------8<----------------------------
+
    /etc/fstab/dev/sdb1 /export ext3 defaults,user_xattr 1 2
+
    #---------------------->8----------------------------
    
 ** set
@@ -173,9 +181,13 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    getfattr hello.txt
 
 ** get
+
    getfattr -n user.foo hello.txt
+
    file: hello.txtuser.foo="bar"
+
    or:
+
    getfattr -d hello.txt
 
 ** remove
@@ -189,22 +201,24 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
 
 ** search 
    find path/to/file/storage -type f -exec getfattr -e "text" -d {} \;
+
    or with use "recursive globbing"
+
    getfattr -e "text" -d path/to/file/storage/**
    
 ** xattr examples:
   
-   user.checksum.md5
-   user.checksum.sha1
-   user.checksum.sha256
-   user.original_author
-   user.application
-   user.project
-   user.comment
-   user.icon.svg
-   user.icon.png.32
-   user.tag  (T_T) already used by another program: user.tag.artist, user.tag.title
-   user.metatag
+   - user.checksum.md5
+   - user.checksum.sha1
+   - user.checksum.sha256
+   - user.original_author
+   - user.application
+   - user.project
+   - user.comment
+   - user.icon.svg
+   - user.icon.png.32
+   - user.tag  (T_T) already used by another program: user.tag.artist, user.tag.title
+   - user.metatag
      
 ** particulars
 
@@ -225,51 +239,74 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    you need enable xattr in kernel and in filesystem
 
 
-   change config file (created after first use): ~/.config/xattr-tag/xattr-config.scm
+*** change config file (created after first use): ~/.config/xattr-tag/xattr-config.scm
+
    #----------------------8<----------------------------
+
    (define *xattr-file-extension* ".txt")
+
    (define *zsh-completion-file* (string-join (list *user-home-dir* "/.config/zsh/completion/_xattr-tag") ""))
+
    (define *list-xattr-tag-file* (string-join (list *user-home-dir* "/.cache/xattr-tag/list-xattr-tag.scm") ""))
+
    #---------------------->8----------------------------
 
 
-   change config file: ~/.zshrc
+*** change config file: ~/.zshrc
+
    #----------------------8<----------------------------
+
    # add path
+
    PATH="$HOME/bin/xattr-tag:$PATH"
+
    #
+
    # COMPLETION SETTINGS
+
    # add custom completion scripts
+
    fpath=($fpath ~/.config/zsh/completion)
+
    # Autoload all shell functions from all directories in $fpath
+
    for func in $^fpath/*(N-.x:t); autoload $func
+
    # compsys initialization
+
    autoload -U compinit
+
    compinit
+
    # show completion menu when number of options is at least 2
+
    zstyle ':completion:*' menu select=2
+
    #---------------------->8----------------------------
    
 ** use:
    
-   set tag:
+*** set tag:
    set-xattr-tag.scm        path/to/test.txt     tag1 tag2 tag3
    
-   adding tags (preserving the existing tag):
+*** adding tags (preserving the existing tag):
    add-xattr-tag.scm        path/to/test.txt     tag1 tag2 tag3
    
-   find tag in path (with auto-completion):
+*** find tag in path (with auto-completion):
    find-xattr-tag.scm       path/to/file/storage tag1 tag2 tag3
    
-   generate tag list for zsh completion (fixme: you need restart terminal for update completion):
+*** generate tag list for zsh completion (fixme: you need restart terminal for update completion):
    generate-xattr-tag.scm   path/to/file/storage
       
 ** clean
-   
    you can remove files:
+
    ~/.cache/xattr-tag/list-xattr-tag.scm
+
    ~/.config/zsh/completion/_xattr-tag
+
    ~/.config/xattr-tag/xattr-config.scm
    
 
 
+   
