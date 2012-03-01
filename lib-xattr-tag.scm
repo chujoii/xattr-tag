@@ -1,5 +1,3 @@
-#!/usr/bin/guile -s
-!#
 ; coding: utf-8
 
 ;;;; lib-xattr-tag.scm ---  library functions work with xattr
@@ -55,7 +53,27 @@
 
 
 
-(define *user-home-dir* (array-ref (getpwuid (geteuid)) 5))
+;(define *user-home-dir* (array-ref (getpwuid (geteuid)) 5)) ;; fixme : which solution is more correct?
+(define *user-home-dir* (getenv "HOME"))
+
+
+
+(define *XDG_CONFIG_HOME*
+  (let ((xdg-cfg (getenv "XDG_CONFIG_HOME")))
+    (if xdg-cfg
+	xdg-cfg
+	(string-join (list *user-home-dir* "/.config") ""))))
+
+
+
+(define *XDG_CACHE_HOME*
+  (let ((xdg-cache (getenv "XDG_CACHE_HOME")))
+    (if xdg-cache
+	xdg-cache
+	(string-join (list *user-home-dir* "/.cache") ""))))
+
+
+
 (define nil '())
 
 (load "../battery-scheme/file-contents.scm")
@@ -68,8 +86,7 @@
 (load "../battery-scheme/flat-list.scm")
 
 
-(let ((user-xattr-cfg (string-join (list *user-home-dir*  "/.config/xattr-tag/xattr-config.scm") "")))
-  (display user-xattr-cfg)(newline)
+(let ((user-xattr-cfg (string-join (list *XDG_CONFIG_HOME*  "/xattr-tag/xattr-config.scm") "")))
   (copy-if-not-exist-file "xattr-config.scm" user-xattr-cfg)
   (load user-xattr-cfg))
 
