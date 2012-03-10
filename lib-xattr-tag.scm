@@ -147,9 +147,45 @@
 
 
 
-(define (generate-list-file-tag startpath)
+(define (generate-list-file-tag-old startpath)
   (map (lambda (filepath) (append (list filepath) (get-xattr-tag-text filepath "user.metatag"))) (list-all-files startpath)))
 
+
+
+
+(use-modules (ice-9 ftw))
+(define (generate-list-file-tag file-name)
+  "Return the list of file name and xattr-tag"
+
+  (define (enter? name stat result)
+    ;; fixme need ad *xattr-file-extension*
+    ;;(not (member (basename name) '(*xattr-file-extension* ".git" ".svn" "CVS"))))
+    #t)
+
+  (define (leaf name stat result)
+    ;; Return RESULT plus the size of the file at NAME.
+    ;;(display "leaf=")(display name)(newline)
+    (cons (cons name (get-xattr-tag-text name "user.metatag")) result))
+    
+  ;; Count zero bytes for directories. fixme: duplicate function
+  (define (down name stat result) 
+    (cons (cons name (get-xattr-tag-text name "user.metatag")) result))
+
+  (define (up name stat result) 
+    (cons (cons name (get-xattr-tag-text name "user.metatag")) result))
+
+  ;; Likewise for skipped directories.
+  (define (skip name stat result) result)
+
+  ;; Ignore unreadable files/directories but warn the user.
+  (define (error name stat errno result)
+    (format (current-error-port) "warning: ~a: ~a~%"
+	    name (strerror errno))
+    result)
+
+  (file-system-fold enter? leaf down up skip error
+		    '() ; initial counter is zero bytes
+		    file-name))
 
 
 
@@ -195,13 +231,18 @@
 ;;; ------------------------------------- zsh auto-completion
 
 (define (generate-zsh-completion-file zsh-file string-tags)
-  ;; fixme: perhaps more correctly update the labels as they are created and the search
   (display-to-file zsh-file 
 		   (string-join (list "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
 				      string-tags
 				      ")\"\n}\n\n_xattr \"$@\" && return 0\n")
-				"")))
+				""))
 
+  ;; automaticaly update zsh auto-completion function
+  ;; fixme: not work because run in "sh" not in "zsh"?
+  ;; fixme: need do update only if _xattr-tag changed?
+  ;;(system "unfunction  _xattr-tag")
+  ;;(system "autoload -U _xattr-tag"))
+  )
 
 (define (append-to-index-and-save tag-list)
   (let ((full-tag-list (unique-list (append tag-list (load-exist-tag *list-xattr-tag-file*)))))

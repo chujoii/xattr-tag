@@ -41,6 +41,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
   
   
   
+  
 * History:
   
   Version 0.1 was created at 2012.february.03
@@ -49,10 +50,9 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
   
 * Dependences:
   
-  guile (GNU Guile) 2.1.0.48-3c65e
+  guile (GNU Guile) 2.1.0.48-3c65e or later.
   
-  battery-scheme
-  
+  battery-scheme: https://github.com/chujoii/battery-scheme
   
   
   
@@ -70,6 +70,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    
    
 ** Todo:
+   - directories can also have attributes
    - cleaning unused tags in index
    - search should not display "file.ext.txt" if file "file.ext" exist
    - create a database for files and tags for fast search and ability to recovery of tag
@@ -139,6 +140,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    При поиске найденные теги добавляются в индекс.
 
 ** Todo (планы на будущее)
+   - каталоги также могут иметь аттрибуты
    - чистка индексных файлов от неиспользуемых тегов
    - при поиске не отображать "file.ext.txt" если есть файл "file.ext"
    - создать базу данных с файлами и тегами для реактивного поиска и возможности восстановления тегов
@@ -170,7 +172,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
 
    #----------------------8<----------------------------
 
-   /etc/fstab/dev/sdb1 /export ext3 defaults,user_xattr 1 2
+   /dev/sda4  /home  ext4  relatime,user_xattr   0 2
 
    #---------------------->8----------------------------
    
@@ -204,7 +206,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
 
    or with use "recursive globbing"
 
-   getfattr -e "text" -d path/to/file/storage/**
+   getfattr -e "text" -d path/to/file/storage/**/*
    
 ** xattr examples:
   

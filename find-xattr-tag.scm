@@ -90,7 +90,7 @@
 
 
 (define (find-tag startpath tag-list)
-  (let ((list-of-files-with-tag (generate-list-file-tag startpath)))
+  (let ((list-of-files-with-tag (generate-list-file-tag-old startpath)))
     ;; automatic update tag-list and zsh-completion
     (append-to-index-and-save (2d-1d (map (lambda (filepath-tags) (cdr filepath-tags))
 					  list-of-files-with-tag)))
