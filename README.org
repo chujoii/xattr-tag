@@ -70,6 +70,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    
    
 ** Todo:
+   - string-joni -> string-append
    - directories can also have attributes
    - cleaning unused tags in index
    - search should not display "file.ext.txt" if file "file.ext" exist
@@ -140,6 +141,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    При поиске найденные теги добавляются в индекс.
 
 ** Todo (планы на будущее)
+   - string-joni -> string-append
    - каталоги также могут иметь аттрибуты
    - чистка индексных файлов от неиспользуемых тегов
    - при поиске не отображать "file.ext.txt" если есть файл "file.ext"

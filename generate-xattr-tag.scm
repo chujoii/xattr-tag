@@ -60,7 +60,7 @@
 
 
 (define (generate-tag-list path)
-  (unique-list (2d-1d (map (lambda (file-tag) (cdr file-tag)) (generate-list-file-tag path)))))
+  (unique-list (2d-1d (map (lambda (file-tag) (cdr file-tag)) (generate-recursive-list-file-tag path)))))
 
 
 

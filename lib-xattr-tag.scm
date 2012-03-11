@@ -124,7 +124,7 @@
 	  (car getfattr-result) 1 -1)
 	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
 	 ;; fixme (?<=").*(?=")
-	 #\ ))))
+	 #\space))))
 
 
 
@@ -138,7 +138,7 @@
 	  (car getfattr-result) 1 -1)
 	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
 	 ;; fixme (?<=").*(?=")
-	 #\ ))))
+	 #\space))))
 
 
 
@@ -147,14 +147,14 @@
 
 
 
-(define (generate-list-file-tag-old startpath)
+(define (generate-list-file-tag-nftw startpath)
   (map (lambda (filepath) (append (list filepath) (get-xattr-tag-text filepath "user.metatag"))) (list-all-files startpath)))
 
 
 
 
 (use-modules (ice-9 ftw))
-(define (generate-list-file-tag file-name)
+(define (generate-list-file-tagfile-system-fold start-dir)
   "Return the list of file name and xattr-tag"
 
   (define (enter? name stat result)
@@ -185,7 +185,7 @@
 
   (file-system-fold enter? leaf down up skip error
 		    '() ; initial counter is zero bytes
-		    file-name))
+		    start-dir))
 
 
 
@@ -195,16 +195,77 @@
   (read (open-file filename "r")))
 
 
+
+
+(define (generate-recursive-list-file-tag start-dir)
+  ;; this function is identical to generate-list-file-tag in input and output parameters.
+  ;; but there is one difference:
+  ;; in the function generate-list-file-tag getfattr call for each file,
+  ;; and this function is called once "getfattr -R" for recursively crawling.
+
+  ;; so this function generate-recursive-globbing-list-file-tag is much faster
+  ;; for example:
+  ;; generate-list-file-tag-nftw                 8.9s
+  ;; generate-list-file-tagfile-system-fold     13.0s
+  ;; generate-recursive-globbing-list-file-tag   0.6s
+
+  ;; getfattr "generate -n user.metatag ... 2>&1"  output:
+  
+  ;; 0 q: user.metatag: No such attribute
+  ;; 1 # file: q/test.txt
+  ;; 2 user.metatag="foo bar"
+  ;; 3 
+  ;; 4 q/test.txt.txt: user.metatag: No such attribute
+
+  ;; 0 without metatag
+  ;; 1,2,3 with metatag (3 - empty string)
+  ;; 4 without metatag
+
+
+  (define (reconstruct-file-without-metatag file-string file-string-index)
+    (string-take file-string file-string-index))
+  (define (reconstruct-file-with-metatag file-string)
+    ;; (string-length "# file: ") === 8
+    (string-drop file-string 8))
+  (define (reconstruct-tag tag-string)
+    ;; (string-length "user.metatag=\"") === 14
+    ;; (string-length "\"") === 1
+    (display tag-string)(newline)
+    (string-split (string-cut tag-string 14 -1) #\space))
+
+  (define (reconstruct-list-file-tag getfattr-list)
+    ;;(display "getfattr-list = ")(write getfattr-list)(newline)
+    ;;(display "ififififififif = ")(display (null? getfattr-list))(newline)
+    (if (or (null? getfattr-list) (equal? getfattr-list (list "")))
+	nil
+	(let ((file-string (car getfattr-list))
+	      (file-string-index (string-contains file-string ": user.metatag: No such attribute")))
+	  ;;(display file-string-index)(display " ")(display file-string)(newline)
+	  (if file-string-index
+	      ;; without metatag
+	      (cons (cons (reconstruct-file-without-metatag file-string file-string-index)
+			  '())
+		    (reconstruct-list-file-tag (cdr getfattr-list)))
+	      ;; with metatag
+	      (cons (cons (reconstruct-file-with-metatag file-string)
+			  (reconstruct-tag (cadr getfattr-list)))
+		    (reconstruct-list-file-tag (cdddr getfattr-list)))))))
+    
+  (reconstruct-list-file-tag 
+   (string-split
+    (system-with-output-to-string (string-append "getfattr --absolute-names -R -e \"text\" -n user.metatag \"" start-dir "\" 2>&1 "))
+    #\newline)))
+
 ;;; ------------------------------------- check
 
 (define (get-md5 filename)
-  (car (string-split (system-with-output-to-string (string-join (list "md5sum -b \"" filename "\"") "")) #\ )))
+  (car (string-split (system-with-output-to-string (string-join (list "md5sum -b \"" filename "\"") "")) #\space)))
 
 (define (get-sha1 filename)
-  (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b \"" filename "\"") "")) #\ )))
+  (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b \"" filename "\"") "")) #\space)))
 
 (define (get-sha256 filename)
-  (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\ )))
+  (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\space)))
 
 (define (check-xattr-tag filename)
   (let ((chk-md5    (equal? (get-xattr-tag-default filename "user.checksum.md5")
