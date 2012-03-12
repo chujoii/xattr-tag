@@ -230,31 +230,42 @@
   (define (reconstruct-tag tag-string)
     ;; (string-length "user.metatag=\"") === 14
     ;; (string-length "\"") === 1
-    (display tag-string)(newline)
     (string-split (string-cut tag-string 14 -1) #\space))
 
-  (define (reconstruct-list-file-tag getfattr-list)
-    ;;(display "getfattr-list = ")(write getfattr-list)(newline)
-    ;;(display "ififififififif = ")(display (null? getfattr-list))(newline)
+
+
+  (define (reconstruct-list-file-tag getfattr-list result-file-tag-list)
     (if (or (null? getfattr-list) (equal? getfattr-list (list "")))
-	nil
-	(let ((file-string (car getfattr-list))
+	result-file-tag-list
+	(let* ((file-string (car getfattr-list))
 	      (file-string-index (string-contains file-string ": user.metatag: No such attribute")))
-	  ;;(display file-string-index)(display " ")(display file-string)(newline)
 	  (if file-string-index
 	      ;; without metatag
-	      (cons (cons (reconstruct-file-without-metatag file-string file-string-index)
-			  '())
-		    (reconstruct-list-file-tag (cdr getfattr-list)))
+	      (reconstruct-list-file-tag (cdr getfattr-list) 
+					 (cons (cons (reconstruct-file-without-metatag file-string file-string-index)
+						     '())
+					       result-file-tag-list))
+
+	      
+
 	      ;; with metatag
-	      (cons (cons (reconstruct-file-with-metatag file-string)
-			  (reconstruct-tag (cadr getfattr-list)))
-		    (reconstruct-list-file-tag (cdddr getfattr-list)))))))
+	      (reconstruct-list-file-tag (cdddr getfattr-list)
+					 (cons (cons (reconstruct-file-with-metatag file-string)
+						     (reconstruct-tag (cadr getfattr-list)))
+					       result-file-tag-list))))))
+
     
   (reconstruct-list-file-tag 
    (string-split
     (system-with-output-to-string (string-append "getfattr --absolute-names -R -e \"text\" -n user.metatag \"" start-dir "\" 2>&1 "))
-    #\newline)))
+    #\newline)
+   '()))
+
+
+
+
+
+
 
 ;;; ------------------------------------- check
 
