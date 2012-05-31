@@ -1,4 +1,4 @@
-#!/usr/bin/guile -s
+#!/usr/bin/guile-2.0 -s
 !#
 ; coding: utf-8
 
@@ -77,7 +77,7 @@
 (use-modules (ice-9 regex))
 (define (get-path-file-name-tag filename)
   ;; strange but this construction not work? fixme
-  ;;(map match:substring (list-matches (string-join (list "[^" (char-set->string (char-set-union char-set:punctuation char-set:whitespace)) "]")) "abc 42 def --_- -78"))
+  ;;(map match:substring (list-matches (string-join (list "[^" (char-set->string (char-set-union char-set:punctuation char-set:whitespace)) "]") " ") "abc 42 def --_- -78"))
   (map match:substring (list-matches "[^- _/.]+" filename)))
 
 
@@ -90,7 +90,8 @@
 
 
 (define (find-tag startpath tag-list)
-  (let ((list-of-files-with-tag (generate-recursive-list-file-tag startpath)))
+  ;;(let ((list-of-files-with-tag (generate-recursive-list-file-tag startpath)))
+  (let ((list-of-files-with-tag (generate-list-file-tagfile-system-fold startpath)))
     ;; automatic update tag-list and zsh-completion
     (append-to-index-and-save (2d-1d (map (lambda (filepath-tags) (cdr filepath-tags))
 					  list-of-files-with-tag)))

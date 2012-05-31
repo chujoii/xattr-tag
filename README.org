@@ -50,7 +50,7 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
   
 * Dependences:
   
-  guile (GNU Guile) 2.1.0.48-3c65e or later.
+  guile (GNU Guile) 2.0.4 or later.
   
   battery-scheme: https://github.com/chujoii/battery-scheme
   
@@ -70,7 +70,6 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    
    
 ** Todo:
-   - string-joni -> string-append
    - directories can also have attributes
    - cleaning unused tags in index
    - search should not display "file.ext.txt" if file "file.ext" exist
@@ -80,6 +79,29 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    - graphical (GTK3) and libastral interface
    - transformation into a dragon: the grandeur and gluttony
    - many forks, including the C, C++ (Qt5), Python, Ruby and other
+   - sometimes "getfattr ... 2>&1" generate strange output
+
+     ~verbatim~
+     # file: /foo/bar/1N5819-schottky.pdf
+     user.metatag/foo/bar/Schottky_diode.maff.txt: user.metatag: No such attribute
+     /foo/bar/1N5819-schottky.pdf.txt: user.metatag: No such attribute
+     /foo/bar/dc-motor: user.metatag: No such attribute
+     ="hot carrier diode schottky"
+     ~verbatim~
+     real: (user.metatag ... many symbols ... ="hot carrier diode")
+     need: (user.metatag="hot carrier diode" ... many lines ... )
+     
+     
+     ~verbatim~
+     # file: /foo/bar/Драйвер_двигателя_L293B.ma/foo/bar/Драйвер_двигателя_L293B.maff.txt: user.metatag: No such attribut
+     /foo/bar/net-misc: user.metatag: No such attribute
+     /foo/bar/Zsh_-_Gentoo_Linux_Wiki.maff.txt: user.metatag: No such attribute
+     ff
+     user.metatag="pwm control speed instruction
+     ~verbatim~
+     real: (/foo/bar/Драйвер_двигателя_L293B.ma/home ... many symbols ... ff user.metatag="pwm control)
+     need: (/foo/bar/Драйвер_двигателя_L293B.maff user.metatag="pwm control ... many lines ...)
+     
 
 * intro (ru)
   
@@ -141,7 +163,6 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    При поиске найденные теги добавляются в индекс.
 
 ** Todo (планы на будущее)
-   - string-joni -> string-append
    - каталоги также могут иметь аттрибуты
    - чистка индексных файлов от неиспользуемых тегов
    - при поиске не отображать "file.ext.txt" если есть файл "file.ext"
@@ -151,6 +172,30 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    - графический (GTK3) и libastral интерфейс
    - превращение в дракона: величие и прожорливость
    - многочисленные форки, в том числе на C, C++ (Qt5), Python, Ruby and other
+   - иногда "getfattr ... 2>&1" генерирует странный текст
+
+     ~verbatim~
+     # file: /foo/bar/1N5819-schottky.pdf
+     user.metatag/foo/bar/Schottky_diode.maff.txt: user.metatag: No such attribute
+     /foo/bar/1N5819-schottky.pdf.txt: user.metatag: No such attribute
+     /foo/bar/dc-motor: user.metatag: No such attribute
+     ="hot carrier diode schottky"
+     ~verbatim~
+
+     real: (user.metatag ... many symbols ... ="hot carrier diode")
+     need: (user.metatag="hot carrier diode" ... many symbols ... )
+     
+     
+     ~verbatim~
+     # file: /foo/bar/Драйвер_двигателя_L293B.ma/foo/bar/Драйвер_двигателя_L293B.maff.txt: user.metatag: No such attribut
+     /foo/bar/net-misc: user.metatag: No such attribute
+     /foo/bar/Zsh_-_Gentoo_Linux_Wiki.maff.txt: user.metatag: No such attribute
+     ff
+     user.metatag="pwm control speed instruction
+     ~verbatim~
+
+     real: (/foo/bar/Драйвер_двигателя_L293B.ma/home ... many symbols ... ff user.metatag="pwm control)
+     need: (/foo/bar/Драйвер_двигателя_L293B.maff user.metatag="pwm control ... many symbols ...)
 
 
 * low level work with xattr  
@@ -204,11 +249,8 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
    setfattr --restore=data_file
 
 ** search 
-   find path/to/file/storage -type f -exec getfattr -e "text" -d {} \;
-
-   or with use "recursive globbing"
-
-   getfattr -e "text" -d path/to/file/storage/**/*
+   
+   getfattr -R -e "text" -n user.metatag   path/to/file/storage   2>&1 | grep 'foo|bar|baz|qux'
    
 ** xattr examples:
   
@@ -249,9 +291,9 @@ Author: Roman V. Prikhodchenko <chujoii@gmail.com>
 
    (define *xattr-file-extension* ".txt")
 
-   (define *zsh-completion-file* (string-join (list *user-home-dir* "/.config/zsh/completion/_xattr-tag") ""))
+   (define *zsh-completion-file* (string-append *user-home-dir* "/.config/zsh/completion/_xattr-tag"))
 
-   (define *list-xattr-tag-file* (string-join (list *user-home-dir* "/.cache/xattr-tag/list-xattr-tag.scm") ""))
+   (define *list-xattr-tag-file* (string-append *user-home-dir* "/.cache/xattr-tag/list-xattr-tag.scm"))
 
    #---------------------->8----------------------------
 

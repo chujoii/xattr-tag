@@ -62,7 +62,7 @@
   (let ((xdg-cfg (getenv "XDG_CONFIG_HOME")))
     (if xdg-cfg
 	xdg-cfg
-	(string-join (list *user-home-dir* "/.config") ""))))
+	(string-append *user-home-dir* "/.config"))))
 
 
 
@@ -70,7 +70,7 @@
   (let ((xdg-cache (getenv "XDG_CACHE_HOME")))
     (if xdg-cache
 	xdg-cache
-	(string-join (list *user-home-dir* "/.cache") ""))))
+	(string-append *user-home-dir* "/.cache"))))
 
 
 
@@ -86,7 +86,7 @@
 (load "../battery-scheme/flat-list.scm")
 
 
-(let ((user-xattr-cfg (string-join (list *XDG_CONFIG_HOME*  "/xattr-tag/xattr-config.scm") "")))
+(let ((user-xattr-cfg (string-append *XDG_CONFIG_HOME*  "/xattr-tag/xattr-config.scm")))
   (copy-if-not-exist-file "xattr-config.scm" user-xattr-cfg)
   (load user-xattr-cfg))
 
@@ -94,11 +94,10 @@
 ;;; ------------------------------------ set
 
 (define (set-xattr-tag filename tag-name tags-list)
-  (system (string-join (list "setfattr"
-			     " -n " tag-name
-			     " -v \"" (string-join tags-list " ") "\""
-			     "    \"" filename "\"")
-		       "")))
+  (system (string-append "setfattr"
+			 " -n " tag-name
+			 " -v \"" (string-join tags-list " ") "\""
+			 "    \"" filename "\"")))
 
 
 
@@ -108,7 +107,7 @@
 ;;  (write (newline) info-file)
 ;;  (close info-file))
 (define (set-info-tag filename result-file)
-  (system (string-join (list "getfattr --dump \"" filename "\" > \"" result-file "\"") "")))
+  (system (string-append "getfattr --dump \"" filename "\" > \"" result-file "\"")))
 
 
 
@@ -116,13 +115,13 @@
 (use-modules (ice-9 regex))
 
 (define (get-xattr-tag-text filename tag-name)
-  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -e text -n " tag-name " \"" filename "\" 2>/dev/null ") "")))))) ;; filename with quotes because it can contain space
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-append "getfattr -e text -n " tag-name " \"" filename "\" 2>/dev/null ")))))) ;; filename with quotes because it can contain space
     (if (null? getfattr-result)
 	nil
 	(string-split
 	 (string-cut
 	  (car getfattr-result) 1 -1)
-	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
+	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename) " ")))))
 	 ;; fixme (?<=").*(?=")
 	 #\space))))
 
@@ -130,20 +129,20 @@
 
 (define (get-xattr-tag-default filename tag-name)
   ;; default for ASCII = text; for nonlatin symbols = base64
-  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n " tag-name " \"" filename "\" 2>/dev/null ") "")))))) ;; filename with quotes because it can contain space
+  (let ((getfattr-result (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-append "getfattr -n " tag-name " \"" filename "\" 2>/dev/null ")))))) ;; filename with quotes because it can contain space
     (if (null? getfattr-result)
 	nil
 	(string-split
 	 (string-cut
 	  (car getfattr-result) 1 -1)
-	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename))))))
+	 ;;(car (map match:substring (list-matches "\"(.*?)\"" (system-with-output-to-string (string-join (list "getfattr -n user.metatag " filename) " ")))))
 	 ;; fixme (?<=").*(?=")
 	 #\space))))
 
 
 
 (define (get-xattr-raw-tag filename)
-  (system-with-output-to-string (string-join (list "getfattr --dump \"" filename "\" 2>/dev/null ") "")))
+  (system-with-output-to-string (string-append "getfattr --dump \"" filename "\" 2>/dev/null ")))
 
 
 
@@ -203,11 +202,20 @@
   ;; in the function generate-list-file-tag getfattr call for each file,
   ;; and this function is called once "getfattr -R" for recursively crawling.
 
-  ;; so this function generate-recursive-globbing-list-file-tag is much faster
+  ;; so this function generate-recursive-list-file-tag is much faster
   ;; for example:
   ;; generate-list-file-tag-nftw                 8.9s
   ;; generate-list-file-tagfile-system-fold     13.0s
-  ;; generate-recursive-globbing-list-file-tag   0.6s
+  ;; generate-recursive-list-file-tag   0.6s
+
+  ;; but bug with improperly mixed stdout and stderr: see README.org "generate ... 2>&1"
+
+
+
+
+
+
+
 
   ;; getfattr "generate -n user.metatag ... 2>&1"  output:
   
@@ -225,11 +233,12 @@
   (define (reconstruct-file-without-metatag file-string file-string-index)
     (string-take file-string file-string-index))
   (define (reconstruct-file-with-metatag file-string)
-    ;; (string-length "# file: ") === 8
+    ;; if (string-length "# file: ") === 8
     (string-drop file-string 8))
   (define (reconstruct-tag tag-string)
-    ;; (string-length "user.metatag=\"") === 14
-    ;; (string-length "\"") === 1
+    ;; if (string-length "user.metatag=\"") === 14
+    ;; if (string-length "\"") === 1
+    ;(display tag-string)(newline)
     (string-split (string-cut tag-string 14 -1) #\space))
 
 
@@ -239,6 +248,7 @@
 	result-file-tag-list
 	(let* ((file-string (car getfattr-list))
 	      (file-string-index (string-contains file-string ": user.metatag: No such attribute")))
+
 	  (if file-string-index
 	      ;; without metatag
 	      (reconstruct-list-file-tag (cdr getfattr-list) 
@@ -253,6 +263,11 @@
 					 (cons (cons (reconstruct-file-with-metatag file-string)
 						     (reconstruct-tag (cadr getfattr-list)))
 					       result-file-tag-list))))))
+
+
+(write   (string-split
+    (system-with-output-to-string (string-append "getfattr --absolute-names -R -e \"text\" -n user.metatag \"" start-dir "\" 2>&1 "))
+    #\newline))
 
     
   (reconstruct-list-file-tag 
@@ -270,13 +285,13 @@
 ;;; ------------------------------------- check
 
 (define (get-md5 filename)
-  (car (string-split (system-with-output-to-string (string-join (list "md5sum -b \"" filename "\"") "")) #\space)))
+  (car (string-split (system-with-output-to-string (string-append "md5sum -b \"" filename "\"")) #\space)))
 
 (define (get-sha1 filename)
-  (car (string-split (system-with-output-to-string (string-join (list "sha1sum -b \"" filename "\"") "")) #\space)))
+  (car (string-split (system-with-output-to-string (string-append "sha1sum -b \"" filename "\"")) #\space)))
 
 (define (get-sha256 filename)
-  (car (string-split (system-with-output-to-string (string-join (list "sha256sum -b \"" filename "\"") "")) #\space)))
+  (car (string-split (system-with-output-to-string (string-append "sha256sum -b \"" filename "\"")) #\space)))
 
 (define (check-xattr-tag filename)
   (let ((chk-md5    (equal? (get-xattr-tag-default filename "user.checksum.md5")
@@ -285,7 +300,7 @@
 			    (list (get-sha1 filename))))
 	(chk-sha256 (equal? (get-xattr-tag-default filename "user.checksum.sha256")
 			    (list (get-sha256 filename))))
-	(chk-info   (let ((stored-xattr-tag (file-contents (string-join (list filename *xattr-file-extension*) "")))
+	(chk-info   (let ((stored-xattr-tag (file-contents (string-append filename *xattr-file-extension*)))
 			  (generated-xattr-tag (string-cut (get-xattr-raw-tag filename) 0 -1)))
 		      ;; remove first line because it contains file name with absolute path OR file name with relative path
 		      (string= (string-take-right stored-xattr-tag    (- (string-length stored-xattr-tag) (string-index stored-xattr-tag #\newline) 1))
@@ -304,10 +319,9 @@
 
 (define (generate-zsh-completion-file zsh-file string-tags)
   (display-to-file zsh-file 
-		   (string-join (list "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
-				      string-tags
-				      ")\"\n}\n\n_xattr \"$@\" && return 0\n")
-				""))
+		   (string-append "#compdef add-xattr-tag.scm find-xattr-tag.scm set-xattr-tag.scm\n\n_xattr () {\n_arguments \"1:path:_files\" \"*:tags:("
+				  string-tags
+				  ")\"\n}\n\n_xattr \"$@\" && return 0\n"))
 
   ;; automaticaly update zsh auto-completion function
   ;; fixme: not work because run in "sh" not in "zsh"?

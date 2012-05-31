@@ -1,4 +1,4 @@
-#!/usr/bin/guile -s
+#!/usr/bin/guile-2.0 -s
 !#
 ; coding: utf-8
 
@@ -63,6 +63,6 @@
   (if (not (check-xattr-tag filename))
       (display "error during check\n")
       (begin (set-xattr-tag filename "user.metatag" (unique-list (append tag-list (get-xattr-tag-text filename "user.metatag"))))
-	     (set-info-tag filename (string-join (list filename *xattr-file-extension*) ""))
+	     (set-info-tag filename (string-append filename *xattr-file-extension*))
 	     ;; automatic update tag-list and zsh-completion
 	     (append-to-index-and-save tag-list))))

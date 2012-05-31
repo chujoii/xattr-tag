@@ -1,4 +1,4 @@
-#!/usr/bin/guile -s
+#!/usr/bin/guile-2.0 -s
 !#
 ; coding: utf-8
 
@@ -56,9 +56,9 @@
 
 
 
-;; bug in ?all? version before 2.0.? (2.0.1 with bug) with function "command-line"
+;; bug in ?all? version GNU Guile before 2.0.4 with function "command-line"
 ;; http://lists.gnu.org/archive/html/guile-user/2011-11/msg00015.html
-;; i am use git version (guile (GNU Guile) 2.1.0.48-3c65e) without bug
+
 
 (let ((filename (cadr (command-line)))
       (tag-list (cddr (command-line))))
@@ -78,7 +78,7 @@
   (set-xattr-tag filename "user.checksum.sha256"
 		 (list (get-sha256 filename)))
   
-  (set-info-tag filename (string-join (list filename *xattr-file-extension*) ""))
+  (set-info-tag filename (string-append filename *xattr-file-extension*))
  
   ;; automatic update tag-list and zsh-completion
   (append-to-index-and-save tag-list))

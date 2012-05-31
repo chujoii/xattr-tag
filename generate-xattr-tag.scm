@@ -1,4 +1,4 @@
-#!/usr/bin/guile -s
+#!/usr/bin/guile-2.0 -s
 !#
 ; coding: utf-8
 
